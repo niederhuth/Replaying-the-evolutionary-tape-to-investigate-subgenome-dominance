@@ -421,7 +421,7 @@ def genome_window_methylation2(allc,genome_file,output=(),window_size=100000,ste
 	for i in range(1,f+1):
 		tables.append('tmp'+str(i))
 		mC_bed = allc2bed('tmp'+str(i))
-		mapping = pbt.bedtool.BedTool.intersect(mC_bed,bed,wa=True).saveas('CDS'+str(i)+'.tmp')
+		mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True).saveas('CDS'+str(i)+'.tmp')
 		tables2.append('CDS'+str(i)+'.tmp')
 		del(mapping)
 	df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
