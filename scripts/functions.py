@@ -400,7 +400,7 @@ def feature_window_methylation(allc,features,output=(),window_size=100,filter_fe
 
 #For calculating methylation levels in windows across the genome
 def genome_window_methylation(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
-	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,stepsize=stepsize,i='srcwinnum')
+	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
 	mC_bed = allc2bed(allc)
 	allc_mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True)
 	m = pd.read_table(allc_mapping.fn,header=None,usecols=[10,13,6,7,8])
@@ -415,7 +415,7 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
 
 def genome_window_methylation2(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
 	f = split_large_file(allc,lines=10000000)
-	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,stepsize=stepsize,i='srcwinnum')
+	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
 	tables=[]
 	tables2=[]
 	for i in range(1,f+1):
