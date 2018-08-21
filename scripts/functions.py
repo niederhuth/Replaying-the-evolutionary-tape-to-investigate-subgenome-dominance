@@ -182,7 +182,7 @@ def window_methylation_levels(m,cutoff=0,nuc_bed=(),output_mC_counts=False):
 
 #map methylation to features
 def map2features(allc,features,genome_file,updown_stream=2000,first_feature=(),second_feature=(),filter_chr=[]):
-	f = split_large_file(allc,lines=10000000)	
+	f = split_large_file(allc,lines=10000000)
 	bed = pbt.BedTool(features).filter(feat_filter,first_feature).filter(chr_filter,filter_chr)
 	flank_bed = pbt.bedtool.BedTool.flank(bed,g=genome_file,l=updown_stream,r=updown_stream,s=True).saveas('f_tmp')
 	cds_bed = pbt.BedTool(features).filter(feat_filter,second_feature).filter(chr_filter,filter_chr).saveas('c_tmp')
@@ -398,14 +398,45 @@ def feature_window_methylation(allc,features,output=(),window_size=100,filter_fe
     for i in ['w_bed','mC_bed','allc_mapping','m','b','pw_bed','nw_bed']:
         del(i)
 
-#
-def genome_window_methylation(allc,genome_file,output=(),window_size=100,cutoff=0,filter_chr=[],output_mC_counts=True):
-	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,i='srcwinnum')
+#For calculating methylation levels in windows across the genome
+def genome_window_methylation(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
+	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,stepsize=stepsize,i='srcwinnum')
 	mC_bed = allc2bed(allc)
 	allc_mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True)
 	m = pd.read_table(allc_mapping.fn,header=None,usecols=[10,13,6,7,8])
-	#m = m.sort_values(by = 13,ascending=True)
+	m = m.sort_values(by = 13,ascending=True)
 	b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
+	if output:
+		b.to_csv(output, sep='\t', index=False)
+	else:
+		return b
+	for i in ['w_bed','mC_bed','allc_mapping','m','b']:
+		del(i)
+
+def genome_window_methylation2(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
+	f = split_large_file(allc,lines=10000000)
+	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,stepsize=stepsize,i='srcwinnum')
+	tables=[]
+	tables2=[]
+	for i in range(1,f+1):
+		tables.append('tmp'+str(i))
+		mC_bed = allc2bed('tmp'+str(i))
+		mapping = pbt.bedtool.BedTool.intersect(mC_bed,bed,wa=True).saveas('CDS'+str(i)+'.tmp')
+		tables2.append('CDS'+str(i)+'.tmp')
+		del(mapping)
+	df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
+	m = pd.concat(df_from_each_tmp_file, ignore_index=True)
+	m = m.drop_duplicates()
+	m = m.sort_values(by = 13,ascending=True)
+	f = split_df_on_column(m,size=10000000,column=[13])
+	tables=[]
+	tables2=[]
+	for i in range(1,f+1):
+		tables.append('tmp'+str(i))
+		b = window_methylation_levels('tmp'+str(i),cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
+		tables2.append('CDS'+str(i)+'.tmp')
+	df_from_each_tmp_file = (pd.read_table(i,header=None) for i in tables2)
+	b = pd.concat(df_from_each_tmp_file, ignore_index=True)
 	if output:
 		b.to_csv(output, sep='\t', index=False)
 	else:
@@ -454,4 +485,3 @@ def split_large_file(input,lines=10000000):
         x=y+1
         y=y+lines+1
     return(f)
-
