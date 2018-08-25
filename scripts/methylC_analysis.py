@@ -14,9 +14,9 @@ context=['CG','CHG','CHH','CAA','CAT','CAC','CAG','CTA','CTT','CTC',
 
 if os.path.exists(genome_file):
 	print('Getting window methylation')
-    functions.genome_window_methylation(allc,genome_file,
-        output='results/genome_window_methylation.tsv',window_size=100000,
-        stepsize=50000,cutoff=0,filter_chr=filter_chr,output_mC_counts=True)
+	functions.genome_window_methylation(allc,genome_file,
+		output='results/genome_window_methylation.tsv',window_size=100000,
+		stepsize=50000,cutoff=0,filter_chr=filter_chr,output_mC_counts=True)
 
 	#print('Getting gene methylation')
 	#functions.map2features(allc,features,genome_file,updown_stream=0,
