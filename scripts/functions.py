@@ -84,7 +84,7 @@ def filter_context(allc,context=["C"]):
 	a = a[a.mc_class.isin(expand_nucleotide_code(context))]
 	return a
 
-#
+#converts and allc file to bed format for use with bedtools
 def allc2bed(allc,context=["C"],bed=True):
     a = filter_context(allc,context)
     a['pos2'] = a.pos
@@ -466,7 +466,94 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
                 c.to_csv(output, sep='\t', index=False)
         else:
                 return c
-        for i in tables +  tables2:
+        for i in tables + tables2:
                 os.remove(i)
         for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
                 del(i)
+
+# count the subcontexts in fasta
+def count_subcontext_fasta(fasta,context=['CG','CHG','CHH'],output=(),filter_chr=[]):
+    df = pd.DataFrame(columns=['context','total_bases'])
+    for c in context:
+        count = 0
+        for i in expand_nucleotide_code([c]):
+            for sequence in SeqIO.parse(fasta, "fasta"):
+                if sequence.name not in filter_chr:
+                    count = count + sequence.seq.count(i) + sequence.seq.reverse_complement().count(i)
+        df = df.append({'context': c, 'total_bases': count}, ignore_index=True)
+    if output:
+        df.to_csv(output, sep='\t', index=False)
+    else:
+        return df
+
+#Count up subcontext methylation
+def count_subcontext_allc(allc,context=['CG','CHG','CHH'],output=(),cutoff=3,filter_chr=[]):
+    a = pd.read_table(allc)
+    df = pd.DataFrame(columns=['context','total_passed','methylated','weighted_mC'])
+    for c in context:
+        tp = mC = t = m = 0
+        for i in expand_nucleotide_code([c]):
+            i_table = a[(a['mc_class']==i) & (~a['chr'].isin(filter_chr))]
+            t = t + i_table['total'].values.sum()
+            m = m + i_table['mc_count'].values.sum()
+            i_table = i_table[i_table['total']>=cutoff]
+            tp = tp + len(i_table.index)
+            mC = mC + len(i_table[i_table['methylated']==1].index)
+        df = df.append({'context': c, 'total_passed': tp, 'methylated': mC,
+                        "weighted_mC": np.float64(m)/np.float64(t)}, ignore_index=True)
+    if output:
+        df.to_csv(output, sep='\t', index=False)
+    else:
+        return df
+
+#Get subcontexts of genome and methylation
+def subcontext_methylation(allc,fasta,context=['CG','CHG','CHH'],output=(),cutoff=3,filter_chr=[]):
+    a = count_subcontext_fasta(fasta,context,output=(),filter_chr=filter_chr)
+    b = count_subcontext_allc(allc,context,output=(),cutoff=3,filter_chr=filter_chr)
+    df = pd.merge(a,b,on='context')
+    if output:
+        df.to_csv(output, sep='\t', index=False)
+    else:
+        return df
+
+#output per-site methylation levels for mCs in each specified context
+def per_site_mC(allc,output_path,context=['CG','CHG','CHH']):
+    for i in context:
+        a = filter_context(allc,[i])
+        a = a[a['methylated'] == 1]
+        a['mc_level'] = a['mc_count']/a['total']
+        a.to_csv(output_path+i+'_site_methylation.txt', sep='\t', index=False)
+
+#get total weighted methylation
+def weighted_mC(allc, output=(), cutoff=0, genome=[]):
+	test[test.chr.isin(list(str(genome1[1])))]
+    CG = mCG = CHG = mCHG = CHH = mCHH = CNN = mCNN = 0
+	if genome[]:
+		g = pd.read_table(genome,header=None,usecols=[0],dtype="str")
+		a = filter_context(allc,[i])
+		a = a[a.chr.isin(list(str(g[0])))]
+	else:
+		a = filter_context(allc,[i])
+    for c in a.itertuples():
+		if int(c[4]) >= int(cutoff):
+			if c[2].startswith("CG"):
+				CG = CG + int(c[4])
+				mCG = mCG + int(c[3])
+			elif c[2].endswith("G"):
+				CHG = CHG + int(c[4])
+				mCHG = mCHG + int(c[3])
+			elif c[2].startswith("CN") or c[2].endswith("N"):
+				CNN = CNN + int(c[4])
+				mCNN = mCNN + int(c[3])
+			else:
+				CHH = CHH + int(c[4])
+				mCHH = mCHH + int(c[3])
+    b = pd.DataFrame(columns=['Context','Total','Methylated','Weighted_mC'])
+    b = b.append({'Context': 'mCG', 'Total': CG, 'Methylated': mCG, 'Weighted_mC': (np.float64(mCG)/np.float64(CG))}, ignore_index=True)
+    b = b.append({'Context': 'mCHG', 'Total': CHG, 'Methylated': mCHG, 'Weighted_mC': (np.float64(mCHG)/np.float64(CHG))}, ignore_index=True)
+    b = b.append({'Context': 'mCHH', 'Total': CHH, 'Methylated': mCHH, 'Weighted_mC': (np.float64(mCHH)/np.float64(CHH))}, ignore_index=True)
+    b = b.append({'Context': 'mCNN', 'Total': CNN, 'Methylated': mCNN, 'Weighted_mC': (np.float64(mCNN)/np.float64(CNN))}, ignore_index=True)
+    if output:
+        b.to_csv(output, sep='\t', index=False)
+    else:
+        return b
