@@ -13,6 +13,49 @@ from collections import Counter
 from Bio import SeqIO
 from math import ceil
 
+#For splitting a dataframe so that columns of equal value do not get put in seperate files
+def split_df_on_column(m,size=10000000,column=0):
+	f=ceil(len(m)/size)
+	w=0
+	x=size
+	y=size
+	for i in range(1,f):
+		z=True
+		while z:
+			if m.iloc[x][column] == m.iloc[y][column]:
+				y=y+1
+			else:
+				z=False
+		m.iloc[w:y-1].to_csv('tmp'+str(i), sep='\t', index=False)
+		w=y
+		x=y+size
+		y=y+size
+	m.iloc[w:].to_csv('tmp'+str(f), sep='\t', index=False)
+    return(f)
+
+#For splitting large files
+def split_large_file(input,lines=10000000):
+    with gzip.open(input,'rb') as a:
+        l=0
+        for line in a:
+            l=l+1
+    f=ceil(l/lines)
+    x=0
+    y=lines
+    for i in range(1,f+1):
+        out=open('tmp'+str(i),'w')
+        with io.TextIOWrapper(gzip.open(input,'rb')) as a:
+            for index, line in enumerate(a):
+                if index <= y:
+                    if index > x:
+                        out.write(str(line))
+                else:
+                    break
+        out.close()
+        x=y+1
+        y=y+lines+1
+    return(f)
+
 #interpret sequence context, taken from methylpy.utils
 def expand_nucleotide_code(mc_type=["C"]):
     iub_dict = {"N":["A","C","G","T"],"H":["A","C","T"],"C":["C"],"G":["G"],"T":["T"],"A":["A"]}
@@ -400,88 +443,30 @@ def feature_window_methylation(allc,features,output=(),window_size=100,filter_fe
 
 #For calculating methylation levels in windows across the genome
 def genome_window_methylation(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
-	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,stepsize=stepsize,i='srcwinnum')
-	mC_bed = allc2bed(allc)
-	allc_mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True)
-	m = pd.read_table(allc_mapping.fn,header=None,usecols=[10,13,6,7,8])
-	m = m.sort_values(by = 13,ascending=True)
-	b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
-	if output:
-		b.to_csv(output, sep='\t', index=False)
-	else:
-		return b
-	for i in ['w_bed','mC_bed','allc_mapping','m','b']:
-		del(i)
-
-def genome_window_methylation2(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
-	f = split_large_file(allc,lines=10000000)
-	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,stepsize=stepsize,i='srcwinnum')
-	tables=[]
-	tables2=[]
-	for i in range(1,f+1):
-		tables.append('tmp'+str(i))
-		mC_bed = allc2bed('tmp'+str(i))
-		mapping = pbt.bedtool.BedTool.intersect(mC_bed,bed,wa=True).saveas('CDS'+str(i)+'.tmp')
-		tables2.append('CDS'+str(i)+'.tmp')
-		del(mapping)
-	df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
-	m = pd.concat(df_from_each_tmp_file, ignore_index=True)
-	m = m.drop_duplicates()
-	m = m.sort_values(by = 13,ascending=True)
-	f = split_df_on_column(m,size=10000000,column=[13])
-	tables=[]
-	tables2=[]
-	for i in range(1,f+1):
-		tables.append('tmp'+str(i))
-		b = window_methylation_levels('tmp'+str(i),cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
-		tables2.append('CDS'+str(i)+'.tmp')
-	df_from_each_tmp_file = (pd.read_table(i,header=None) for i in tables2)
-	b = pd.concat(df_from_each_tmp_file, ignore_index=True)
-	if output:
-		b.to_csv(output, sep='\t', index=False)
-	else:
-		return b
-	for i in ['w_bed','mC_bed','allc_mapping','m','b']:
-		del(i)
-
-#For splitting a dataframe so that columns of equal value do not get put in seperate files
-def split_df_on_column(m,size=10000000,column=[13]):
-	f=ceil(len(m)/size)
-	w=0
-	x=size
-	y=size
-	for i in range(1,f):
-		z=True
-		while z:
-			if m.iloc[x][column] == m.iloc[y][column]:
-				y=y+1
-			else:
-				z=False
-		m.iloc[w:y-1].to_csv('tmp'+str(i), sep='\t', index=False)
-		w=y
-		x=y+size
-		y=y+size
-	m.iloc[w:].to_csv('tmp'+str(f), sep='\t', index=False)
-
-#For splitting large files
-def split_large_file(input,lines=10000000):
-    with gzip.open(input,'rb') as a:
-        l=0
-        for line in a:
-            l=l+1
-    f=ceil(l/lines)
-    x=0
-    y=lines
-    for i in range(1,f+1):
-        out=open('tmp'+str(i),'w')
-        with io.TextIOWrapper(gzip.open(input,'rb')) as a:
-            for index, line in enumerate(a):
-                if index <= y:
-                    if index > x:
-                        out.write(str(line))
-                else:
-                    break
-        out.close()
-        x=y+1
-        y=y+lines+1
-    return(f)
+        f = split_large_file(allc,lines=10000000)
+        w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
+        tables=[]
+        tables2=[]
+        for i in range(1,f+1):
+                tables.append('tmp'+str(i))
+                mC_bed = allc2bed('tmp'+str(i))
+                mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True).saveas('map'+str(i)+'.tmp')
+                tables2.append('map'+str(i)+'.tmp')
+                del(mapping)
+        df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
+        m = pd.concat(df_from_each_tmp_file, ignore_index=True)
+        m = m.sort_values(by = 13,ascending=True)
+        f = split_df_on_column(m,size=10000000,column=13)
+        c = pd.DataFrame(columns=['window','mCG_reads','CG_reads','mCG','mCHG_reads','CHG_reads','mCHG','mCHH_reads','CHH_reads','mCHH'])
+        for i in range(1,f+1):
+                m = pd.read_table('tmp'+str(i),header=0)
+                b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
+                c = pd.concat([c, b], ignore_index=True)
+        if output:
+                c.to_csv(output, sep='\t', index=False)
+        else:
+                return c
+        for i in tables +  tables2:
+                os.remove(i)
+        for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
+                del(i)
