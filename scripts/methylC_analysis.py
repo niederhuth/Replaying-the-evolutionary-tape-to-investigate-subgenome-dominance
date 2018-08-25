@@ -6,13 +6,13 @@ sys.path.append(os.path.dirname(os.path.expanduser(functionsfile)))
 
 import functions
 allc='allc_'+sys.argv[1]+'.tsv.gz'
-genome_file='../ref/combined/'+sys.argv[1]+'.genome'
+genome_file='../ref/combined/combined.genome'
 features='../ref/combined/'+sys.argv[1]+'.gff.gz'
 filter_chr=['37_Plastid','37_Mitochondria','ChrL','ChrC','ChrM','Pt','Mt']
 context=['CG','CHG','CHH','CAA','CAT','CAC','CAG','CTA','CTT','CTC',
          'CTG','CCA','CCT','CCC','CCG','CGA','CGT','CGC','CGG']
 
-if os.path.exists(features):
+if os.path.exists(genome_file):
 	print('Getting window methylation')
 	functions.genome_window_methylation(allc,genome_file,
 		output='results/genome_window_methylation.tsv',window_size=100,cutoff=0,

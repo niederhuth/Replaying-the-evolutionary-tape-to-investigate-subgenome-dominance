@@ -1,7 +1,7 @@
 #!/bin/bash -login
 #PBS -l walltime=3:59:00
-#PBS -l nodes=1:ppn=1
-#PBS -l mem=50gb
+#PBS -l nodes=1:ppn=2
+#PBS -l mem=20gb
 #PBS -N methylC_analysis
 
 export TMPDIR=$PBS_O_WORKDIR
