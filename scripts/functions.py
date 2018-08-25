@@ -526,8 +526,7 @@ def per_site_mC(allc,output_path,context=['CG','CHG','CHH']):
 
 #get total weighted methylation
 def weighted_mC(allc, output=(), cutoff=0, genome=[]):
-	test[test.chr.isin(list(str(genome1[1])))]
-    CG = mCG = CHG = mCHG = CHH = mCHH = CNN = mCNN = 0
+	CG = mCG = CHG = mCHG = CHH = mCHH = CNN = mCNN = 0
 	if genome[]:
 		g = pd.read_table(genome,header=None,usecols=[0],dtype="str")
 		a = filter_context(allc,[i])
