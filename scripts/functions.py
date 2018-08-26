@@ -443,7 +443,7 @@ def feature_window_methylation(allc,features,output=(),window_size=100,filter_fe
 
 #For calculating methylation levels in windows across the genome
 def genome_window_methylation(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
-        f = split_large_file(allc,lines=10000000)
+        f = split_large_file(allc,lines=50000000)
         w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
         tables=[]
         tables2=[]
@@ -456,7 +456,7 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
         df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
         m = pd.concat(df_from_each_tmp_file, ignore_index=True)
         m = m.sort_values(by = 13,ascending=True)
-        f = split_df_on_column(m,size=10000000,column=13)
+        f = split_df_on_column(m,size=50000000,column=13)
         c = pd.DataFrame(columns=['window','mCG_reads','CG_reads','mCG','mCHG_reads','CHG_reads','mCHG','mCHH_reads','CHH_reads','mCHH'])
         for i in range(1,f+1):
                 m = pd.read_table('tmp'+str(i),header=0)
@@ -525,34 +525,36 @@ def per_site_mC(allc,output_path,context=['CG','CHG','CHH']):
         a.to_csv(output_path+i+'_site_methylation.txt', sep='\t', index=False)
 
 #get total weighted methylation
-def weighted_mC(allc, output=(), cutoff=0, genome=[]):
+def weighted_mC(allc, output=(), cutoff=0, genome=()):
 	CG = mCG = CHG = mCHG = CHH = mCHH = CNN = mCNN = 0
-	if genome[]:
+	if genome:
 		g = pd.read_table(genome,header=None,usecols=[0],dtype="str")
-		a = filter_context(allc,[i])
-		a = a[a.chr.isin(list(str(g[0])))]
+		a = filter_context(allc,['C'])
+		a = a[a.chr.isin(list(g[0]))]
 	else:
-		a = filter_context(allc,[i])
-    for c in a.itertuples():
-		if int(c[4]) >= int(cutoff):
-			if c[2].startswith("CG"):
-				CG = CG + int(c[4])
-				mCG = mCG + int(c[3])
-			elif c[2].endswith("G"):
-				CHG = CHG + int(c[4])
-				mCHG = mCHG + int(c[3])
-			elif c[2].startswith("CN") or c[2].endswith("N"):
-				CNN = CNN + int(c[4])
-				mCNN = mCNN + int(c[3])
+		a = filter_context(allc,['C'])
+	for c in a.itertuples():
+		if int(c[6]) >= int(cutoff):
+			if c[4].startswith("CG"):
+				CG = CG + int(c[6])
+				mCG = mCG + int(c[5])
+			elif c[4].endswith("G"):
+				CHG = CHG + int(c[6])
+				mCHG = mCHG + int(c[5])
+			elif c[4].startswith("CN") or c[4].endswith("N"):
+				CNN = CNN + int(c[6])
+				mCNN = mCNN + int(c[5])
 			else:
-				CHH = CHH + int(c[4])
-				mCHH = mCHH + int(c[3])
-    b = pd.DataFrame(columns=['Context','Total','Methylated','Weighted_mC'])
-    b = b.append({'Context': 'mCG', 'Total': CG, 'Methylated': mCG, 'Weighted_mC': (np.float64(mCG)/np.float64(CG))}, ignore_index=True)
-    b = b.append({'Context': 'mCHG', 'Total': CHG, 'Methylated': mCHG, 'Weighted_mC': (np.float64(mCHG)/np.float64(CHG))}, ignore_index=True)
-    b = b.append({'Context': 'mCHH', 'Total': CHH, 'Methylated': mCHH, 'Weighted_mC': (np.float64(mCHH)/np.float64(CHH))}, ignore_index=True)
-    b = b.append({'Context': 'mCNN', 'Total': CNN, 'Methylated': mCNN, 'Weighted_mC': (np.float64(mCNN)/np.float64(CNN))}, ignore_index=True)
-    if output:
-        b.to_csv(output, sep='\t', index=False)
-    else:
-        return b
+				CHH = CHH + int(c[6])
+				mCHH = mCHH + int(c[5])
+	b = pd.DataFrame(columns=['Context','Total','Methylated','Weighted_mC'])
+	b = b.append({'Context': 'mCG', 'Total': CG, 'Methylated': mCG, 'Weighted_mC': (np.float64(mCG)/np.float64(CG))}, ignore_index=True)
+	b = b.append({'Context': 'mCHG', 'Total': CHG, 'Methylated': mCHG, 'Weighted_mC': (np.float64(mCHG)/np.float64(CHG))}, ignore_index=True)
+	b = b.append({'Context': 'mCHH', 'Total': CHH, 'Methylated': mCHH, 'Weighted_mC': (np.float64(mCHH)/np.float64(CHH))}, ignore_index=True)
+	b = b.append({'Context': 'mCNN', 'Total': CNN, 'Methylated': mCNN, 'Weighted_mC': (np.float64(mCNN)/np.float64(CNN))}, ignore_index=True)
+	if output:
+		b.to_csv(output, sep='\t', index=False)
+	else:
+		return b
+
+

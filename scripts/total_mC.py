@@ -12,5 +12,6 @@ filter_chr=['37_Plastid','37_Mitochondria','ChrL','ChrC','ChrM','Pt','Mt']
 context=['CG','CHG','CHH','CAA','CAT','CAC','CAG','CTA','CTT','CTC',
          'CTG','CCA','CCT','CCC','CCG','CGA','CGT','CGC','CGG']
 
+functions.weighted_mC(allc, output="results/Total_methylation.tsv", cutoff=0)
 functions.weighted_mC(allc, output="results/TO1000_total_methylation.tsv", cutoff=0, genome=genome_file1)
 functions.weighted_mC(allc, output="results/IMB218_total_methylation.tsv", cutoff=0, genome=genome_file2)
