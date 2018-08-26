@@ -459,6 +459,7 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
         f = split_df_on_column(m,size=50000000,column=13)
         c = pd.DataFrame(columns=['window','mCG_reads','CG_reads','mCG','mCHG_reads','CHG_reads','mCHG','mCHH_reads','CHH_reads','mCHH'])
         for i in range(1,f+1):
+				tables.append('tmp'+str(i))
                 m = pd.read_table('tmp'+str(i),header=0)
                 b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
                 c = pd.concat([c, b], ignore_index=True)
@@ -556,5 +557,3 @@ def weighted_mC(allc, output=(), cutoff=0, genome=()):
 		b.to_csv(output, sep='\t', index=False)
 	else:
 		return b
-
-
