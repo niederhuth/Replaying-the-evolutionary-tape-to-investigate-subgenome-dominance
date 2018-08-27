@@ -443,34 +443,34 @@ def feature_window_methylation(allc,features,output=(),window_size=100,filter_fe
 
 #For calculating methylation levels in windows across the genome
 def genome_window_methylation(allc,genome_file,output=(),window_size=100000,stepsize=50000,cutoff=0,filter_chr=[],output_mC_counts=True):
-        f = split_large_file(allc,lines=50000000)
-        w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
-        tables=[]
-        tables2=[]
-        for i in range(1,f+1):
-                tables.append('tmp'+str(i))
-                mC_bed = allc2bed('tmp'+str(i))
-                mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True).saveas('map'+str(i)+'.tmp')
-                tables2.append('map'+str(i)+'.tmp')
-                del(mapping)
-        df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
-        m = pd.concat(df_from_each_tmp_file, ignore_index=True)
-        m = m.sort_values(by = 13,ascending=True)
-        f = split_df_on_column(m,size=50000000,column=13)
-        c = pd.DataFrame(columns=['window','mCG_reads','CG_reads','mCG','mCHG_reads','CHG_reads','mCHG','mCHH_reads','CHH_reads','mCHH'])
-        for i in range(1,f+1):
-				tables.append('tmp'+str(i))
-                m = pd.read_table('tmp'+str(i),header=0)
-                b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
-                c = pd.concat([c, b], ignore_index=True)
-        if output:
-                c.to_csv(output, sep='\t', index=False)
-        else:
-                return c
-        for i in tables + tables2:
-                os.remove(i)
-        for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
-                del(i)
+	f = split_large_file(allc,lines=50000000)
+    w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
+    tables=[]
+    tables2=[]
+    for i in range(1,f+1):
+		tables.append('tmp'+str(i))
+		mC_bed = allc2bed('tmp'+str(i))
+		mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True).saveas('map'+str(i)+'.tmp')
+		tables2.append('map'+str(i)+'.tmp')
+		del(mapping)
+	df_from_each_tmp_file = (pd.read_table(i,header=None,usecols=[10,13,6,7,8]) for i in tables2)
+    m = pd.concat(df_from_each_tmp_file, ignore_index=True)
+    m = m.sort_values(by = 13,ascending=True)
+    f = split_df_on_column(m,size=50000000,column=13)
+    c = pd.DataFrame(columns=['window','mCG_reads','CG_reads','mCG','mCHG_reads','CHG_reads','mCHG','mCHH_reads','CHH_reads','mCHH'])
+    for i in range(1,f+1):
+		tables.append('tmp'+str(i))
+        m = pd.read_table('tmp'+str(i),header=0)
+        b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
+        c = pd.concat([c, b], ignore_index=True)
+    if output:
+        c.to_csv(output, sep='\t', index=False)
+    else:
+        return c
+    for i in tables + tables2:
+        os.remove(i)
+    for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
+        del(i)
 
 # count the subcontexts in fasta
 def count_subcontext_fasta(fasta,context=['CG','CHG','CHH'],output=(),filter_chr=[]):
