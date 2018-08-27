@@ -446,8 +446,8 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
 	f = split_large_file(allc,lines=50000000)
 	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
 	tables=[]
-    tables2=[]
-    for i in range(1,f+1):
+	tables2=[]
+	for i in range(1,f+1):
 		tables.append('tmp'+str(i))
 		mC_bed = allc2bed('tmp'+str(i))
 		mapping = pbt.bedtool.BedTool.intersect(mC_bed,w_bed,wa=True,wb=True).saveas('map'+str(i)+'.tmp')
