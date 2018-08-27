@@ -467,7 +467,7 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
 		c.to_csv(output, sep='\t', index=False)
 	else:
 		return c
-	for i in tables + tables2:
+	for i in list(set(tables)) + list(set(tables2)):
 		os.remove(i)
 	for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
 		del(i)
