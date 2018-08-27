@@ -463,14 +463,14 @@ def genome_window_methylation(allc,genome_file,output=(),window_size=100000,step
 		m = pd.read_table('tmp'+str(i),header=0)
 		b = window_methylation_levels(m,cutoff=cutoff,nuc_bed=(),output_mC_counts=True)
 		c = pd.concat([c, b], ignore_index=True)
-    if output:
-        c.to_csv(output, sep='\t', index=False)
-    else:
-        return c
-    for i in tables + tables2:
-        os.remove(i)
-    for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
-        del(i)
+	if output:
+		c.to_csv(output, sep='\t', index=False)
+	else:
+		return c
+	for i in tables + tables2:
+		os.remove(i)
+	for i in ['w_bed','mC_bed','allc_mapping','m','b','c','df_from_each_tmp_file','tables','tables2']:
+		del(i)
 
 # count the subcontexts in fasta
 def count_subcontext_fasta(fasta,context=['CG','CHG','CHH'],output=(),filter_chr=[]):
