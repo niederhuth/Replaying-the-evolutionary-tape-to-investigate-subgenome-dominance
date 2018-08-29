@@ -2,7 +2,7 @@
 #PBS -l walltime=3:59:00
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=50gb
-#PBS -N chromosome_map
+#PBS -N gene_metaplots
 
 export TMPDIR=$PBS_O_WORKDIR
 export TMP=$PBS_O_WORKDIR

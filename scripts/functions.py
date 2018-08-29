@@ -225,7 +225,7 @@ def window_methylation_levels(m,cutoff=0,nuc_bed=(),output_mC_counts=False):
 
 #map methylation to features
 def map2features(allc,features,genome_file,updown_stream=2000,first_feature=(),second_feature=(),filter_chr=[]):
-	f = split_large_file(allc,lines=50000000)
+	f = split_large_file(allc,lines=20000000)
 	bed = pbt.BedTool(features).filter(feat_filter,first_feature).filter(chr_filter,filter_chr)
 	flank_bed = pbt.bedtool.BedTool.flank(bed,g=genome_file,l=updown_stream,r=updown_stream,s=True).saveas('f_tmp')
 	cds_bed = pbt.BedTool(features).filter(feat_filter,second_feature).filter(chr_filter,filter_chr).saveas('c_tmp')

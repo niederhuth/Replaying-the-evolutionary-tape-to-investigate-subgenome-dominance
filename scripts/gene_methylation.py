@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.expanduser(functionsfile)))
 import functions
 allc='allc_'+sys.argv[1]+'.tsv.gz'
 genome_file='../ref/combined/combined.genome'
-features='../ref/combined/'+sys.argv[1]+'.gff.gz'
+features='../ref/combined/combined.gff.gz'
 filter_chr=['37_Plastid','37_Mitochondria','ChrL','ChrC','ChrM','Pt','Mt']
 context=['CG','CHG','CHH','CAA','CAT','CAC','CAG','CTA','CTT','CTC',
          'CTG','CCA','CCT','CCC','CCG','CGA','CGT','CGC','CGG']
