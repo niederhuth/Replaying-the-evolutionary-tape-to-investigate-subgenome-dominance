@@ -1,5 +1,5 @@
 #!/bin/bash -login
-#PBS -l walltime=3:59:00
+#PBS -l walltime=5:00:00
 #PBS -l nodes=1:ppn=1
 #PBS -l mem=50gb
 #PBS -N chromosome_map

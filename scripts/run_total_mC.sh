@@ -1,8 +1,11 @@
-#!/bin/bash -login
-#PBS -l walltime=3:59:00
-#PBS -l nodes=1:ppn=1
-#PBS -l mem=50gb
-#PBS -N total_mC
+#!/bin/bash --login
+#SBATCH --time=3:59:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=60GB
+#SBATCH --job-name total_mC
+#SBATCH --output=%x-%j.SLURMout
 
 export TMPDIR=$PBS_O_WORKDIR
 export TMP=$PBS_O_WORKDIR
@@ -13,3 +16,4 @@ sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 
 echo "MethylC Analysis of $sample"
 python ../../scripts/total_mC.py $sample
+
