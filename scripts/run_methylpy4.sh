@@ -8,9 +8,6 @@ cd $PBS_O_WORKDIR
 
 sample=$(pwd | sed s/^.*\\///)
 
-module load Java/1.8.0_31
-module load SRAToolkit/2.8.2
-
 cd fastq
 for i in *fq.gz
 do
@@ -23,7 +20,7 @@ done
 for i in *fastq.gz
 do
 	gunzip $i
-done 
+done
 cd ../
 
 if ls fastq/*_2.fastq >/dev/null 2>&1
@@ -55,7 +52,7 @@ then
 	--path-to-cutadapt "" \
 	--path-to-aligner "" \
 	--aligner "bowtie2" \
-	--aligner-options "" \
+	--aligner-options ["--very-sensitive", "-X 1000", "--no-discordant", "--no-mixed"] \
 	--merge-by-max-mapq True \
 	--remove-clonal True \
 	--path-to-picard /mnt/home/niederhu/anaconda3/share/picard-2.18.11-0/ \
