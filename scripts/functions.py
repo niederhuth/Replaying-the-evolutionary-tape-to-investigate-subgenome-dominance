@@ -60,7 +60,7 @@ def allc2bed(allc):
 #Collect mC data for a context
 def get_mC_data(a,mc_type='C',cutoff=0):
 	#expand nucleotide list for a given context
-	b = expand_nucleotide_code(mc_type)
+	b = expand_nucleotide_code(mc_type=[mc_type])
 	d1 = d2 = d3 = d4 = 0
 	#iterate over each line
 	for c in a.itertuples():
