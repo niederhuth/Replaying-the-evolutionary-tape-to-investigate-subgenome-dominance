@@ -2,7 +2,7 @@
 #SBATCH --time=96:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=20
 #SBATCH --mem=100GB
 #SBATCH --job-name methylpy
 #SBATCH --output=job_reports/%x-%j.SLURMout
@@ -17,15 +17,15 @@ then
 	--read1-files fastq/*_1.fastq \
 	--read2-files fastq/*_2.fastq \
 	--sample $sample \
-	--forward-ref ../ref/combined/combined_f \
-	--reverse-ref ../ref/combined/combined_r \
+	--forward-ref ../ref/combined/combined_f.mmi \
+	--reverse-ref ../ref/combined/combined_r.mmi \
 	--ref-fasta ../ref/combined/combined.fa \
 	--libraries "libA" \
 	--path-to-output "" \
 	--pbat False \
 	--check-dependency False \
-	--num-procs 10 \
-	--sort-mem 9G \
+	--num-procs 20 \
+	--sort-mem 5G \
 	--num-upstream-bases 0 \
 	--num-downstream-bases 2 \
 	--generate-allc-file True \
@@ -37,8 +37,8 @@ then
 	--trim-reads True \
 	--path-to-cutadapt "" \
 	--path-to-aligner "" \
-	--aligner "bowtie2" \
-	--aligner-options "--very-sensitive -X 1000 --no-discordant --no-mixed" \
+	--aligner "minimap2" \
+	--aligner-options "-ax sr --secondary=no --heap-sort no" \
 	--merge-by-max-mapq True \
 	--remove-clonal True \
 	--path-to-picard /mnt/home/niederhu/anaconda3/share/picard-2.18.16-0 \
