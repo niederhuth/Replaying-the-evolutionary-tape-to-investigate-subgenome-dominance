@@ -1,31 +1,53 @@
 #!/bin/bash --login
-#SBATCH --time=96:00:00
+#SBATCH --time=72:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=100GB
-#SBATCH --job-name methylpy
+#SBATCH --mem=60GB
+#SBATCH --job-name combined2_methylpy
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
+mkdir combined2
 
+#List Variables
 sample=$(pwd | sed s/^.*\\///)
+f_ref="../../ref/combined/combined_f"
+r_ref="../../ref/combined/combined_r"
+fasta="../../ref/combined/combined.fa"
+read1="../fastq/*_1.fastq"
+read2="../fastq/*_2.fastq"
+unmethylated_control="37_Plastid"
+adaptor1="AGATCGGAAGAGCACACGTCTGAAC"
+adaptor2="AGATCGGAAGAGCGTCGTGTAGGGA"
+aligner="bowtie2"
+aligner_options="--very-sensitive -X 1000"
+picard="/mnt/home/niederhu/anaconda3/share/picard-2.18.16-0"
 
-if ls fastq/*_2.fastq >/dev/null 2>&1
-then
-	methylpy paired-end-pipeline \
-	--read1-files fastq/*_1.fastq \
-	--read2-files fastq/*_2.fastq \
+#Unzip fastq files
+echo "Decompressing fastq files"
+cd fastq
+for i in *fastq.gz
+do
+	gunzip $i
+done 
+cd ../combined2
+
+#Run Methylpy
+echo "Running methylpy"
+methylpy paired-end-pipeline \
+	--read1-files $read1 \
+	--read2-files $read2 \
 	--sample $sample \
-	--forward-ref ../ref/combined/combined_f \
-	--reverse-ref ../ref/combined/combined_r \
-	--ref-fasta ../ref/combined/combined.fa \
+	--forward-ref $f_ref \
+	--reverse-ref $r_ref \
+	--ref-fasta $fasta \
 	--libraries "libA" \
 	--path-to-output "" \
 	--pbat False \
 	--check-dependency False \
 	--num-procs 10 \
-	--sort-mem 9G \
+	--sort-mem 5G \
 	--num-upstream-bases 0 \
 	--num-downstream-bases 2 \
 	--generate-allc-file True \
@@ -37,19 +59,19 @@ then
 	--trim-reads True \
 	--path-to-cutadapt "" \
 	--path-to-aligner "" \
-	--aligner "bowtie2" \
-	--aligner-options "--very-sensitive -X 1000 --no-discordant --no-mixed" \
-	--merge-by-max-mapq True \
+	--aligner $aligner \
+	--aligner-options "$aligner_options" \
+	--merge-by-max-mapq False \
 	--remove-clonal True \
-	--path-to-picard /mnt/home/niederhu/anaconda3/share/picard-2.18.16-0 \
+	--path-to-picard $picard \
 	--keep-clonal-stats True \
 	--java-options "" \
 	--path-to-samtools "" \
-	--adapter-seq-read1 AGATCGGAAGAGCACACGTCTGAAC \
-	--adapter-seq-read2 AGATCGGAAGAGCGTCGTGTAGGGA \
+	--adapter-seq-read1 $adaptor1 \
+	--adapter-seq-read2 $adaptor2 \
 	--remove-chr-prefix False \
 	--add-snp-info False \
-	--unmethylated-control "37_Plastid" \
+	--unmethylated-control $unmethylated_control \
 	--binom-test True \
 	--sig-cutoff .01 \
 	--min-mapq 30 \
@@ -60,5 +82,16 @@ then
 	--min-qual-score 10 \
 	--min-read-len 30 \
 	--min-base-quality 1 \
-	--keep-temp-files False
-fi
+	--keep-temp-files True
+
+#rm *mpileup_output.tsv *_reads_no_clonal*.bam* *_libA.metric
+
+#Compress fastq files
+#echo "Compressing fastqs"
+#cd ../fastq
+#for i in *fastq
+#do
+#	gzip $i
+#done
+
+echo "Done"

@@ -1,48 +1,53 @@
-#!/bin/bash -login
-#PBS -l walltime=48:00:00
-#PBS -l nodes=1:ppn=10
-#PBS -l mem=52gb
-#PBS -N methylpy
+#!/bin/bash --login
+#SBATCH --time=72:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=10
+#SBATCH --mem=60GB
+#SBATCH --job-name TO1000_methylpy
+#SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
+mkdir TO1000
 
+#List Variables
 sample=$(pwd | sed s/^.*\\///)
+f_ref="../../ref/TO1000/TO1000_f"
+r_ref="../../ref/TO1000/TO1000_r"
+fasta="../../ref/TO1000/TO1000.fa"
+read1="../fastq/*_1.fastq"
+read2="../fastq/*_2.fastq"
+unmethylated_control="37_Plastid"
+adaptor1="AGATCGGAAGAGCACACGTCTGAAC"
+adaptor2="AGATCGGAAGAGCGTCGTGTAGGGA"
+aligner="bowtie2"
+aligner_options="--very-sensitive -X 1000"
+picard="/mnt/home/niederhu/anaconda3/share/picard-2.18.16-0"
 
-module load Java/1.8.0_31
-module load SRAToolkit/2.8.2
-
+#Unzip fastq files
+echo "Decompressing fastq files"
 cd fastq
-for i in *fq.gz
-do
-        gunzip $i
-        name=$(echo $i | sed s/\.gz//)
-        new=$(echo $name | sed s/fq$/fastq/)
-        mv $name $new
-done
-
 for i in *fastq.gz
 do
 	gunzip $i
 done 
-cd ../
+cd ../TO1000
 
-if ls fastq/*_2.fastq >/dev/null 2>&1
-then
-	echo "Data is paired-end"
-	echo "Running methylpy"
-	methylpy paired-end-pipeline \
-	--read1-files fastq/*_1.fastq \
-	--read2-files fastq/*_2.fastq \
+#Run Methylpy
+echo "Running methylpy"
+methylpy paired-end-pipeline \
+	--read1-files $read1 \
+	--read2-files $read2 \
 	--sample $sample \
-	--forward-ref ../ref/IMB218/IMB218_f \
-	--reverse-ref ../ref/IMB218/IMB218_r \
-	--ref-fasta ../ref/IMB218/IMB218.fa \
+	--forward-ref $f_ref \
+	--reverse-ref $r_ref \
+	--ref-fasta $fasta \
 	--libraries "libA" \
 	--path-to-output "" \
 	--pbat False \
 	--check-dependency False \
 	--num-procs 10 \
-	--sort-mem 5 \
+	--sort-mem 5G \
 	--num-upstream-bases 0 \
 	--num-downstream-bases 2 \
 	--generate-allc-file True \
@@ -54,19 +59,19 @@ then
 	--trim-reads True \
 	--path-to-cutadapt "" \
 	--path-to-aligner "" \
-	--aligner "bowtie2" \
-	--aligner-options "" \
+	--aligner $aligner \
+	--aligner-options "$aligner_options" \
 	--merge-by-max-mapq True \
 	--remove-clonal True \
-	--path-to-picard /mnt/home/niederhu/anaconda3/share/picard-2.18.11-0/ \
+	--path-to-picard $picard \
 	--keep-clonal-stats True \
 	--java-options "" \
 	--path-to-samtools "" \
-	--adapter-seq-read1 AGATCGGAAGAGCACACGTCTGAAC \
-	--adapter-seq-read2 AGATCGGAAGAGCGTCGTGTAGGGA \
+	--adapter-seq-read1 $adaptor1 \
+	--adapter-seq-read2 $adaptor2 \
 	--remove-chr-prefix False \
 	--add-snp-info False \
-	--unmethylated-control "37_Plastid" \
+	--unmethylated-control $unmethylated_control \
 	--binom-test True \
 	--sig-cutoff .01 \
 	--min-mapq 30 \
@@ -77,65 +82,16 @@ then
 	--min-qual-score 10 \
 	--min-read-len 30 \
 	--min-base-quality 1 \
-	--keep-temp-files False
-else
-	echo "Data is single-end"
-	echo "Running methylpy"
-	methylpy single-end-pipeline \
-	--read-files fastq/*fastq \
-	--sample $sample \
-        --forward-ref ../ref/combined/combined_f \
-        --reverse-ref ../ref/combined/combined_r \
-        --ref-fasta ../ref/combined/combined.fa \
-        --libraries "libA" \
-        --path-to-output "" \
-        --pbat False \
-        --check-dependency False \
-        --num-procs 10 \
-        --sort-mem 5 \
-        --num-upstream-bases 0 \
-        --num-downstream-bases 2 \
-        --generate-allc-file True \
-        --generate-mpileup-file True \
-        --compress-output True \
-        --bgzip False \
-        --path-to-bgzip "" \
-        --path-to-tabix "" \
-        --trim-reads True \
-        --path-to-cutadapt "" \
-        --path-to-aligner "" \
-        --aligner "bowtie2" \
-        --aligner-options "" \
-        --merge-by-max-mapq True \
-        --remove-clonal True \
-        --path-to-picard /mnt/home/niederhu/anaconda3/share/picard-2.18.11-0/ \
-        --keep-clonal-stats True \
-        --java-options "" \
-        --path-to-samtools "" \
-	--adapter-seq AGATCGGAAGAGCACACGTCTG \
-	--remove-chr-prefix False \
-        --add-snp-info False \
-        --unmethylated-control "37_Plastid" \
-        --binom-test True \
-        --sig-cutoff .01 \
-        --min-mapq 30 \
-        --min-cov 3 \
-        --max-adapter-removal 1 \
-        --overlap-length 3 \
-        --error-rate 0.1 \
-        --min-qual-score 10 \
-        --min-read-len 30 \
-        --min-base-quality 1 \
-        --keep-temp-files False
-fi
+	--keep-temp-files True
 
 #rm *mpileup_output.tsv *_reads_no_clonal*.bam* *_libA.metric
 
-echo "Compressing fastqs"
-cd fastq
-for i in *fastq
-do
-	gzip $i
-done
+#Compress fastq files
+#echo "Compressing fastqs"
+#cd ../fastq
+#for i in *fastq
+#do
+#	gzip $i
+#done
 
 echo "Done"

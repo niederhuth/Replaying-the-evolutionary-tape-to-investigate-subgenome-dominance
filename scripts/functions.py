@@ -1,9 +1,45 @@
 import os
 import sys
+import gzip
 import itertools
-import numpy as np
 import pandas as pd
 import pybedtools as pbt
+from io import TextIOWrapper
+from numpy import float64
+
+#split large files into temporary files of smaller size
+def split_file(input,line_number=10000000):
+	#set starting count values
+	a = 1
+	b = 0
+	c = line_number
+	#open first output file and add to list
+	files = ['split' + str(a) + '.tmp']
+	out=open('split' + str(a) + '.tmp','w')
+	#open input file
+	with TextIOWrapper(gzip.open(input,'rb')) as e:
+		#iterate over each line, adding an index
+		for index, line in enumerate(e):
+			#test if index fits between upper and lower limits and write to file
+			if index <= c:
+				if index > b:
+					out.write(str(line))
+			else:
+				#close last ouput
+				out.close()
+				#reset count values
+				a += 1
+				b = c
+				c += line_number
+				#open new output and add to list
+				filesappend('split' + str(a) + '.tmp')
+				out=open('split' + str(a) + '.tmp','w')
+				#output line
+				out.write(str(line))
+		#close last ouptut
+		out.close()
+	#return number of temporary files for use in other functions
+	return(files)
 
 #function for filtering annotation files based on feature (gene, exon, mRNA, etc)
 def feature_filter(x,feature):
@@ -25,7 +61,7 @@ def expand_nucleotide_code(mc_type=['C']):
 	iub_dict = {'N':['A','C','G','T','N'],'H':['A','C','T','H'],'D':['A','G','T','D'],'B':['C','G','T','B'],'A':['A','C','G','A'],'R':['A','G','R'],'Y':['C','T','Y'],'K':['G','T','K'],'M':['A','C','M'],'S':['G','C','S'],'W':['A','T','W'],'C':['C'],'G':['G'],'T':['T'],'A':['A']}
 	mc_class = list(mc_type) # copy
 	if 'C' in mc_type:
-		mc_class.extend(['CGN', 'CHG', 'CHH','CNN','CH','CN'])
+		mc_class.extend(['CGN', 'CHG', 'CHH','CNN'])
 	elif 'CG' in mc_type:
 		mc_class.extend(['CGN'])
 	mc_class_final = []
@@ -34,7 +70,7 @@ def expand_nucleotide_code(mc_type=['C']):
 	return(set(mc_class_final))
 
 #Read allc file and convert to bedfile
-def allc2bed(allc):
+def allc2bed(allc,return_bed=True):
 	#get first line
 	if allc.endswith('gz'):
 		header = gzip.open(allc).readline().rstrip()
@@ -47,14 +83,17 @@ def allc2bed(allc):
 	else:
 		#read in allc file to pandas dataframe, add header if does not have one
 		a = pd.read_table(allc,names=['chr','pos','strand','mc_class','mc_count','total','methylated'],dtype={'chr':str,'pos':int,'strand':str,'mc_class':str,'mc_count':int,'total':int,'methylated':int})
-	#add new columns
-	a['pos2'] = a['pos']
-	a['name'] = a.index
-	a['score'] = '.'
-	#reorder columns
-	a = a[['chr','pos','pos2','name','score','strand','mc_class','mc_count','total','methylated']]
-	#return bed file
-	a = pbt.BedTool.from_dataframe(a)
+	#if return_bed = True, convert to bedfile
+	if return_bed is True:
+		#add new columns
+		a['pos2'] = a['pos']
+		a['name'] = a.index
+		a['score'] = '.'
+		#reorder columns
+		a = a[['chr','pos','pos2','name','score','strand','mc_class','mc_count','total','methylated']]
+		#create pybedtools object
+		a = pbt.BedTool.from_dataframe(a)
+	#return a
 	return a
 
 #Collect mC data for a context
@@ -84,7 +123,7 @@ def get_mC_data(a,mc_type='C',cutoff=0):
 #Collect total methylation data for genome or sets of chromosomes
 def total_weighted_mC(allc,output=(),mc_type=['CG','CHG','CHH'],cutoff=0,chrs=[]):
 	#read allc file
-	a =  pd.read_table(allc,names=['chr','pos','strand','mc_class','mc_count','total','methylated'],dtype={'chr':str,'pos':int,'strand':str,'mc_class':str,'mc_count':int,'total':int,'methylated':int})
+	a = allc2bed(allc,return_bed=False)
 	#filter chromosome sequences
 	if chrs:
 		a = a[a.chr.isin(chrs)]
@@ -95,9 +134,61 @@ def total_weighted_mC(allc,output=(),mc_type=['CG','CHG','CHH'],cutoff=0,chrs=[]
 	for c in mc_type:
 		d = get_mC_data(a,mc_type=c,cutoff=cutoff)
 		#calculate weighted methylation
-		d = d + [(np.float64(d[4])/np.float64(d[3]))]
+		d += [(float64(d[4])/float64(d[3]))]
 		#add to data frame
 		b = b.append(pd.DataFrame([d],columns=columns), ignore_index=True)
+	#output results
+	if output:
+		b.to_csv(output, sep='\t', index=False)
+	else:
+		return b
+
+#for calculating methylation levels in windows across the genome
+def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_size=100000,stepsize=50000,cutoff=0,chrs=[]):
+	#read in allc file
+	a = allc2bed(allc)
+	#create output data frame
+	c = ['Chr','Window']
+	columns=['Total_sites','Methylated_sites','Total_reads','Methylated_reads','Weighted_mC']
+	for d in mc_type:
+		for e in columns:
+			c = c + [d + '_' + e]
+	b = pd.DataFrame(columns=c)
+	#make windows
+	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file).filter(chr_filter,chrs),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
+	#intersect bedfiles with pybedtools
+	mapping = pbt.bedtool.BedTool.intersect(a,w_bed,wa=True,wb=True)
+	del(w_bed,a)
+	#convert to pandas dataframe
+	m = pd.read_table(mapping.fn,header=None,usecols=[13,6,7,8,9])
+	del(mapping)
+	#split srcwinnum
+	f = m[13].str.split('_', n = 1, expand = True)
+	#make new columns from srcwinnum
+	m['Chr'] = f[0]
+	m['Window'] = f[1]
+	del(f)
+	#reorder data frame
+	m = m[['Chr','Window',13,6,7,8,9]]
+	#iterate over each chromosome
+	for g in chrs:
+		#get windows for that specific chromosome
+		windows = list(m[m['Chr'].isin([str(g)])]['Window'].drop_duplicates())
+		#iterate over each window in each chromosome
+		for h in windows:
+			#filter for rows matching specific chr & window number
+			i = m[m['Chr'].isin([str(g)]) & m['Window'].isin([str(h)])]
+			#make list for methylation data
+			j = [g,h]
+			#iterate over each mC type and run get_mC_data
+			for k in mc_type:
+				l = get_mC_data(i,mc_type=k,cutoff=cutoff)
+				#delete first line of list
+				del(l[0])
+				#Calculate weighted methylation and add this to list of data for other mc_types
+				j += l + [(float64(l[3])/float64(l[2]))]
+			#append the results for that window to the dataframe
+			b = b.append(pd.DataFrame([j],columns=c),ignore_index=True)
 	#output results
 	if output:
 		b.to_csv(output, sep='\t', index=False)
@@ -133,7 +224,7 @@ def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=
 	for b in tmp:
 		os.remove(b)
 
-#output methylation data for making metaplots of features (i.e. genes, CDS, transposons), will not filter out data from introns, etc...use gene_metaplot for that
+#output methylation data for making metaplots of features (e.g. genes, CDS, transposons), will not filter out data from introns, etc...use gene_metaplot for that
 def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,feature=(),cutoff=0,chrs=[]):
 	#read in allc file
 	a = allc2bed(allc)
@@ -190,11 +281,11 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 			for k in mc_type:
 				l = get_mC_data(i,mc_type=k,cutoff=cutoff)
 				#Calculate weighted methylation and add this to list of data for other mc_types
-				j = j + [(np.float64(l[4])/np.float64(l[3]))]
+				j += [(float64(l[4])/float64(l[3]))]
 			#append the results for that window to the dataframe
 			b = b.append(pd.DataFrame([j],columns=c),ignore_index=True)
 			#count windows
-			window = window + 1
+			window += 1
 	#output results
 	if output:
 		b.to_csv(output, sep='\t', index=False)
@@ -205,8 +296,7 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 	for n in tmp:
 		os.remove(n)
 
-
-#output methylation data for making metaplots of features (i.e. genes, CDS, transposons), for use when need to first filter data from another feature, such as intron sequences
+#output methylation data for making metaplots of features (e.g. genes, CDS, transposons), for use when need to first filter data from another feature, such as intron sequences
 def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,cutoff=0,first_feature=(),second_feature=(),chrs=[],remove_tmp=True):
 	#prefilter allc file based on annotations
 	allc_annotation_filter(allc,annotations,genome_file,output='annotation_filtered_allc.tmp',updown_stream=updown_stream,first_feature=first_feature,second_feature=second_feature,chrs=chrs)
@@ -215,3 +305,64 @@ def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CH
 	#remove annotation filtered allc file, if set to false, this will be kept
 	if remove_tmp:
 		os.remove('annotation_filtered_allc.tmp')
+
+#Calculate methylation levels for features
+def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],updown_stream=0,feature=(),cutoff=0,chrs=[]):
+	#read in allc file
+	a = allc2bed(allc)
+	#create output data frame
+	c = ['Feature']
+	columns=['Weighted_mC']
+	for d in mc_type:
+		for e in columns:
+			c = c + [d + '_' + e]
+	b = pd.DataFrame(columns=c)
+	#read annotation file and filter on feature
+	f_bed = pbt.BedTool(annotations).filter(feature_filter,feature).filter(chr_filter,chrs).saveas('f_bed.tmp')
+	#if updown_stream set to 0, only region to look at is the feature itself, e.g. f_bed
+	if updown_stream == 0:
+		regions=['f_bed.tmp']
+	#if updown_stream specified, create bed files for upstream regions (u_bed) and down stream regions (d_bed)
+	else:
+		u_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=updown_stream,r=0,s=True).saveas('u_bed.tmp')
+		d_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=0,r=updown_stream,s=True).saveas('d_bed.tmp')
+		regions=['u_bed.tmp','d_bed.tmp']
+	#iterate over each region and collect methylation data
+	for f in regions:
+		#intersect bedfiles with pybedtools
+		mapping = pbt.bedtool.BedTool.intersect(a,f,wa=True,wb=True)
+		del(a)
+		#convert to pandas dataframe
+		m = pd.read_table(mapping.fn,header=None,usecols=[18,6,7,8,9])
+		del(mapping)
+		#split column 18
+		g = m[18].str.split(';', n = 1, expand = True)
+		g = g[0].str.split('=', n = 1, expand = True)
+		#make new columns from column 18
+		m['Name'] = g[1]
+		m['Window'] = '.'
+		#reorder m
+		m = m[['Name','Window',18,6,7,8,9]]
+		#get gene names
+		g = m['Name'].drop_duplicates()
+		#iterate list of window numbers
+		for h in list(g):
+			#filter for rows matching specific window number
+			i = m[m['Name'].isin([str(h)])]
+			#make list for methylation data
+			j = [h]
+			#iterate over each mC type and run get_mC_data
+			for k in mc_type:
+				l = get_mC_data(i,mc_type=k,cutoff=cutoff)
+				#Calculate weighted methylation and add this to list of data for other mc_types
+				j += [(float64(l[4])/float64(l[3]))]
+			#append the results for that window to the dataframe
+			b = b.append(pd.DataFrame([j],columns=c),ignore_index=True)
+	#output results
+	if output:
+		b.to_csv(output, sep='\t', index=False)
+	else:
+		return b
+	#remove temporary files created
+	for n in regions:
+		os.remove(n)
