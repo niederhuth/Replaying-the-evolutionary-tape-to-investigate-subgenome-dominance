@@ -1,0 +1,43 @@
+import os
+import sys
+import pandas as pd
+
+functionsfile = '../../../scripts/functions.py'
+sys.path.append(os.path.dirname(os.path.expanduser(functionsfile)))
+
+import functions
+
+#define variables
+allc='allc_'+sys.argv[1]+'.tsv.gz'
+genome_file='../../ref/combined/combined.genome'
+genome_file2='../../ref/IMB218/IMB218.genome'
+genome_file3='../../ref/TO1000/TO1000.genome'
+filter_chr=['ChrL','37_Plastid','37_Mitochondria']
+mc_type=['CG','CHG','CHH']
+cutoff=0
+output='results/uncorrected_total_weighted_methylation.txt'
+output2='results/uncorrected_IMB218_weighted_methylation.txt'
+output3='results/uncorrected_TO1000_weighted_methylation.txt'
+
+#get chromosome list
+chrs = list(pd.read_table(genome_file,header=None,usecols=[0],dtype='str')[0])
+chrs = list(set(chrs).difference(filter_chr))
+
+#get total weighted mC
+functions.total_weighted_mC(allc, output=output, mc_type=mc_type, cutoff=cutoff, chrs=chrs)
+
+#get IMB218 chromosome list
+chrs = list(pd.read_table(genome_file2,header=None,usecols=[0],dtype='str')[0])
+chrs = list(set(chrs).difference(filter_chr))
+
+#get IMB218 total weighted mC
+functions.total_weighted_mC(allc, output=output2, mc_type=mc_type, cutoff=cutoff, chrs=chrs)
+
+#get TO1000 chromosome list
+chrs = list(pd.read_table(genome_file3,header=None,usecols=[0],dtype='str')[0])
+chrs = list(set(chrs).difference(filter_chr))
+
+#get TO1000 weighted mC
+functions.total_weighted_mC(allc, output=output3, mc_type=mc_type, cutoff=cutoff, chrs=chrs)
+
+
