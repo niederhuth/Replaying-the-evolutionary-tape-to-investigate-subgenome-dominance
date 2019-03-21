@@ -4,17 +4,17 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=60GB
-#SBATCH --job-name combined2_methylpy
+#SBATCH --job-name IMB218_methylpy
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-mkdir combined2
+mkdir IMB218
 
 #List Variables
 sample=$(pwd | sed s/^.*\\///)
-f_ref="../../ref/combined/combined_f"
-r_ref="../../ref/combined/combined_r"
-fasta="../../ref/combined/combined.fa"
+f_ref="../../ref/IMB218/IMB218_f"
+r_ref="../../ref/IMB218/IMB218_r"
+fasta="../../ref/IMB218/IMB218.fa"
 read1="../fastq/*_1.fastq"
 read2="../fastq/*_2.fastq"
 unmethylated_control="37_Plastid"
@@ -31,7 +31,7 @@ for i in *fastq.gz
 do
 	gunzip $i
 done 
-cd ../combined2
+cd ../IMB218
 
 #Run Methylpy
 echo "Running methylpy"
@@ -61,7 +61,7 @@ methylpy paired-end-pipeline \
 	--path-to-aligner "" \
 	--aligner $aligner \
 	--aligner-options "$aligner_options" \
-	--merge-by-max-mapq False \
+	--merge-by-max-mapq True \
 	--remove-clonal True \
 	--path-to-picard $picard \
 	--keep-clonal-stats True \

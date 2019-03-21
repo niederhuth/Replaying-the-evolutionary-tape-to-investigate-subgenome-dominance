@@ -1,17 +1,18 @@
-#!/bin/bash -login
-#PBS -l walltime=24:00:00
-#PBS -l nodes=1:ppn=1
-#PBS -l mem=6gb
-#PBS -N setup
+#!/bin/bash --login
+#SBATCH --time=6:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=25GB
+#SBATCH --job-name setup
+#SBATCH --output=%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
 i=$(pwd | sed s/^.*\\///)
-module load bowtie2/2.3.1
-module load SAMTools/1.5
 
 #Prep genome
 echo "Setting up $i"
 samtools faidx $i.fa
 cut -f1,2 $i.fa.fai > $i.genome
 methylpy build-reference --input-files $i.fa \
-	--output-prefix $i --bowtie2 True
+	--output-prefix $i --aligner bowtie2

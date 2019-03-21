@@ -1,10 +1,10 @@
 #!/bin/bash --login
-#SBATCH --time=6:00:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=100GB
-#SBATCH --job-name total_mC
+#SBATCH --job-name gene_metaplot
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
@@ -17,7 +17,7 @@ export TEMP=$PBS_O_WORKDIR
 sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 
 #get total weighted mC
-echo "Get total methylation of $sample"
+echo "Get gene metaplot data for $sample"
 cd combined2
-python ../../../scripts/total_mC.py $sample
+python ../../../scripts/gene_metaplots.py $sample
 
