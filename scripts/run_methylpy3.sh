@@ -4,17 +4,17 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=60GB
-#SBATCH --job-name TO1000_methylpy
+#SBATCH --job-name R500_methylpy
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-mkdir TO1000
+mkdir R500
 
 #List Variables
 sample=$(pwd | sed s/^.*\\///)
-f_ref="../../ref/TO1000/TO1000_f"
-r_ref="../../ref/TO1000/TO1000_r"
-fasta="../../ref/TO1000/TO1000.fa"
+f_ref="../../ref/R500/R500_f"
+r_ref="../../ref/R500/R500_r"
+fasta="../../ref/R500/R500.fa"
 read1="../fastq/*_1.fastq"
 read2="../fastq/*_2.fastq"
 unmethylated_control="37_Plastid"
@@ -31,7 +31,7 @@ for i in *fastq.gz
 do
 	gunzip $i
 done 
-cd ../TO1000
+cd ../IMB218
 
 #Run Methylpy
 echo "Running methylpy"
@@ -46,7 +46,7 @@ methylpy paired-end-pipeline \
 	--path-to-output "" \
 	--pbat False \
 	--check-dependency False \
-	--num-procs 10 \
+	--num-procs 20 \
 	--sort-mem 5G \
 	--num-upstream-bases 0 \
 	--num-downstream-bases 2 \

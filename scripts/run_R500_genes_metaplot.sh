@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=100GB
-#SBATCH --job-name gene_metaplot
+#SBATCH --job-name R500_genes_metaplot
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
@@ -18,6 +18,6 @@ sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 
 #get total weighted mC
 echo "Get gene metaplot data for $sample"
-cd combined2
-python ../../../scripts/gene_metaplots.py $sample
+cd combined
+python ../../../scripts/R500_genes_metaplot.py $sample
 

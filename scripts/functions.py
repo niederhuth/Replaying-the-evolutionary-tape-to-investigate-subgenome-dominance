@@ -199,27 +199,37 @@ def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CH
 def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=2000,first_feature=(),second_feature=(),chrs=[]):
 	#read in annotations and filter by first feature, typically a something like 'gene'
 	#this is used solely to accurately create flanking regions
+	print("Reading annotations")
 	bed = pbt.BedTool(annotations).filter(feature_filter,first_feature).filter(chr_filter,chrs)
 	#create bedfile of flanking regions (if specified)
+	print("Getting flanking regions")
 	flank_bed = pbt.bedtool.BedTool.flank(bed,g=genome_file,l=updown_stream,r=updown_stream,s=True).saveas('f_bed.tmp')
 	#read in annotations and filter by second annotation, typically a something like coding sequences 'CDS'
 	#this is the annotation used to first filter the data
+	print("Filtering second feature annotations")
 	cds_bed = pbt.BedTool(annotations).filter(feature_filter,second_feature).filter(chr_filter,chrs).saveas('c_bed.tmp')
 	#combine flanking regions with second feature
+	print("Combining second feature and flanking region bed files")
 	combined_bed = cds_bed.cat(flank_bed, postmerge=False)
 	#read in allc file and map to annotations
+	print("Reading allc file")
 	a = allc2bed(allc)
+	print("Mapping sites to annotations")
 	mapping = pbt.bedtool.BedTool.intersect(a,combined_bed,wa=True)
+	print("Converting mapped sites to table") 
 	m = pd.read_table(mapping.fn, header=None, usecols = [0,1,5,6,7,8,9])
 	#create new filtered allc file of sites mapping to regions
+	print("Reformat data and drop duplicate sites")
 	m.columns = ['chr','pos','strand','mc_class','mc_count','total','methylated']
 	m = m.drop_duplicates().sort_values(['chr','pos'],ascending=[True,True])
 	#output results	#output results
 	if output:
+		print("Outputing results")
 		m.to_csv(output, sep='\t', index=False)
 	else:
 		return m
 	#remove temporary files created
+	print("Removing temporary files")
 	tmp=['f_bed.tmp','c_bed.tmp']
 	for b in tmp:
 		os.remove(b)
@@ -227,8 +237,10 @@ def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=
 #output methylation data for making metaplots of features (e.g. genes, CDS, transposons), will not filter out data from introns, etc...use gene_metaplot for that
 def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,feature=(),cutoff=0,chrs=[]):
 	#read in allc file
+	print("Reading allc file")
 	a = allc2bed(allc)
 	#create output data frame
+	print("Create output dataframe")
 	c = ['Window']
 	columns=['Weighted_mC']
 	for d in mc_type:
@@ -236,18 +248,22 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 			c = c + [d + '_' + e]
 	b = pd.DataFrame(columns=c)
 	#read annotation file and filter on feature
+	print("Reading annotations")
 	f_bed = pbt.BedTool(annotations).filter(feature_filter,feature).filter(chr_filter,chrs).saveas('f_bed.tmp')
 	#if updown_stream set to 0, only region to look at is the feature itself, e.g. f_bed
 	if updown_stream == 0:
+		print("No flanking regions specified. Analyze annotations only")
 		regions=[f_bed]
 	#if updown_stream specified, create bed files for upstream regions (u_bed) and down stream regions (d_bed)
 	else:
+		print("Get flanking regions")
 		u_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=updown_stream,r=0,s=True).saveas('u_bed.tmp')
 		d_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=0,r=updown_stream,s=True).saveas('d_bed.tmp')
 		regions=[u_bed,f_bed,d_bed]
 	#set window number to 1
 	window = 1
 	#iterate over each region and collect methylation data
+	print("Mapping sites to annotations and collecting methylation data")
 	for f in regions:
 		#filter bed files based on strand
 		p_bed = f.filter(strand_filter,strand='+').saveas('p_bed.tmp')
@@ -288,23 +304,27 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 			window += 1
 	#output results
 	if output:
+		print("Outputing results")
 		b.to_csv(output, sep='\t', index=False)
 	else:
 		return b
 	#remove temporary files created
+	print("Removing temporary files")
 	tmp=['f_bed.tmp','u_bed.tmp','d_bed.tmp','p_bed.tmp','n_bed.tmp']
 	for n in tmp:
 		os.remove(n)
 
 #output methylation data for making metaplots of features (e.g. genes, CDS, transposons), for use when need to first filter data from another feature, such as intron sequences
-def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,cutoff=0,first_feature=(),second_feature=(),chrs=[],remove_tmp=True):
+def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,cutoff=0,first_feature=(),second_feature=(),chrs=[],filtered_data_output='annotation_filtered_allc.tmp',remove_tmp=True):
 	#prefilter allc file based on annotations
-	allc_annotation_filter(allc,annotations,genome_file,output='annotation_filtered_allc.tmp',updown_stream=updown_stream,first_feature=first_feature,second_feature=second_feature,chrs=chrs)
+	print("Filtering data for sites in annotations")
+	allc_annotation_filter(allc,annotations,genome_file,output=filtered_data_output,updown_stream=updown_stream,first_feature=first_feature,second_feature=second_feature,chrs=chrs)
 	#collect methylation data
-	metaplot('annotation_filtered_allc.tmp',annotations,genome_file,output=output,mc_type=mc_type,window_number=window_number,updown_stream=updown_stream,feature=first_feature,cutoff=0,chrs=chrs)
+	print("Collecting metaplot data")
+	metaplot(filtered_data_output,annotations,genome_file,output=output,mc_type=mc_type,window_number=window_number,updown_stream=updown_stream,feature=first_feature,cutoff=0,chrs=chrs)
 	#remove annotation filtered allc file, if set to false, this will be kept
 	if remove_tmp:
-		os.remove('annotation_filtered_allc.tmp')
+		os.remove(filtered_data_output)
 
 #Calculate methylation levels for features
 def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],updown_stream=0,feature=(),cutoff=0,chrs=[]):
