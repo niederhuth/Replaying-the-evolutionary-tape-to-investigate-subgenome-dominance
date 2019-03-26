@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.expanduser(functionsfile)))
 import functions
 
 #define variables
-allc='uncorrected_all_genes_filered_allc.tmp'
+allc='uncorrected_all_genes_filtered_allc.tmp'
 annotations='../../ref/annotations/R500.gff'
 genome_file='../../ref/combined/combined.genome'
 filter_chr=['ChrL','37_Plastid','37_Mitochondria']

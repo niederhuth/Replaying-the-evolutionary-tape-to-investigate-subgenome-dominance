@@ -18,7 +18,7 @@ updown_stream=2000
 cutoff=0
 first_feature='gene'
 second_feature='CDS'
-filtered_data_ouptut='uncorrected_TO1000_genes_filtered_allc.tmp'
+filtered_data_output='uncorrected_TO1000_genes_filtered_allc.tmp'
 output='results/uncorrected_TO1000_genes_metaplot.txt'
 
 #get chromosome list

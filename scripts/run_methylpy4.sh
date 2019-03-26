@@ -1,20 +1,20 @@
 #!/bin/bash --login
-#SBATCH --time=72:00:00
+#SBATCH --time=98:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=10
-#SBATCH --mem=60GB
-#SBATCH --job-name R500_methylpy
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=120GB
+#SBATCH --job-name combined_methylpy
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-mkdir R500
+mkdir combined
 
 #List Variables
 sample=$(pwd | sed s/^.*\\///)
-f_ref="../../ref/R500/R500_f"
-r_ref="../../ref/R500/R500_r"
-fasta="../../ref/R500/R500.fa"
+f_ref="../../ref/combined/combined_f"
+r_ref="../../ref/combined/combined_r"
+fasta="../../ref/combined/combined.fa"
 read1="../fastq/*_1.fastq"
 read2="../fastq/*_2.fastq"
 unmethylated_control="37_Plastid"
@@ -31,7 +31,7 @@ for i in *fastq.gz
 do
 	gunzip $i
 done 
-cd ../R500
+cd ../combined
 
 #Run Methylpy
 echo "Running methylpy"
@@ -46,7 +46,7 @@ methylpy paired-end-pipeline \
 	--path-to-output "" \
 	--pbat False \
 	--check-dependency False \
-	--num-procs 20 \
+	--num-procs 10 \
 	--sort-mem 5G \
 	--num-upstream-bases 0 \
 	--num-downstream-bases 2 \

@@ -18,6 +18,6 @@ sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 
 #get total weighted mC
 echo "Get total methylation of $sample"
-cd combined2
+cd combined
 python ../../../scripts/total_mC2.py $sample
 

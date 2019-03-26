@@ -10,13 +10,13 @@ import functions
 #define variables
 allc='allc_'+sys.argv[1]+'.tsv.gz'
 genome_file='../../ref/combined/combined.genome'
-genome_file2='../../ref/IMB218/IMB218.genome'
+genome_file2='../../ref/R500/R500.genome'
 genome_file3='../../ref/TO1000/TO1000.genome'
 filter_chr=['ChrL','37_Plastid','37_Mitochondria']
 mc_type=['CG','CHG','CHH']
 cutoff=0
 output='results/uncorrected_total_weighted_methylation.txt'
-output2='results/uncorrected_IMB218_weighted_methylation.txt'
+output2='results/uncorrected_R500_weighted_methylation.txt'
 output3='results/uncorrected_TO1000_weighted_methylation.txt'
 
 #get chromosome list
