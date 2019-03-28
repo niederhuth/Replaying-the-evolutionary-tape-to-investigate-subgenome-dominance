@@ -8,9 +8,9 @@ samples <- read.csv('../misc/samples.csv',header=T)
 #Metaplots
 setwd("metaplots/")
 #All samples CG & CHG metaplots
-for(x in c('all_genes','R500_genes','R500_syntelogs','R500_non-syntelogs','TO1000_genes','TO1000_syntelogs','TO1000_non-syntelogs')){
+for(x in c('all_genes','R500_genes','TO1000_genes','R500_syntelogs','R500_non-syntelogs','TO1000_syntelogs','TO1000_non-syntelogs')){
   df <- matrix(nrow=0,ncol=0)
-  for(i in names <- c('100S5','100S10','1100S1','1100S5','1100S10','200S1','200S5','200S10','300S5','300S10','400S1','400S5','400S10','600S1','600S5','600S10','TO1000')){
+  for(i in names <- c('100S5','100S10','1100S1','1100S5','1100S10','200S1','200S5','200S10','300S5','300S10','400S1','400S5','400S10','600S1','600S5','600S10','TO1000','IMB218')){
     input=paste(x,paste(i,"uncorrected",x,"metaplot.txt",sep="_"),sep="/")
     df2 <- read.table(input,header=T,sep="\t")[2:4]
     colnames(df2) <- c('CG','CHG','CHH')
@@ -42,9 +42,9 @@ for(x in c('all_genes','R500_genes','R500_syntelogs','R500_non-syntelogs','TO100
 }  
 
 #All samples CHH metaplots
-for(x in c('all_genes','R500_genes','R500_syntelogs','R500_non-syntelogs','TO1000_genes','TO1000_syntelogs','TO1000_non-syntelogs')){
+for(x in c('all_genes','R500_genes','R500_syntelogs','TO1000_genes','R500_non-syntelogs','TO1000_syntelogs','TO1000_non-syntelogs')){
   df <- matrix(nrow=0,ncol=0)
-  for(i in names <- c('100S5','100S10','1100S1','1100S5','1100S10','200S1','200S5','200S10','300S5','300S10','400S1','400S5','400S10','600S1','600S5','600S10','TO1000')){
+  for(i in names <- c('100S5','100S10','1100S1','1100S5','1100S10','200S1','200S5','200S10','300S5','300S10','400S1','400S5','400S10','600S1','600S5','600S10','TO1000','IMB218')){
     input=paste(x,paste(i,"uncorrected",x,"metaplot.txt",sep="_"),sep="/")
     df2 <- read.table(input,header=T,sep="\t")[2:4]
     colnames(df2) <- c('CG','CHG','CHH')
@@ -147,4 +147,4 @@ for(x in c('all_genes','R500_genes','R500_syntelogs','R500_non-syntelogs','TO100
 }  
 
 #Total methylation levels
-setwd("../total_methylation")
+#setwd("../total_methylation")
