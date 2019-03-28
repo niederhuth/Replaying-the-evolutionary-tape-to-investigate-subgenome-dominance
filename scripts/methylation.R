@@ -3,8 +3,10 @@
 library(ggplot2)
 library(reshape2)
 
-samples <- read.csv('../../misc/samples.csv',header=T)
+samples <- read.csv('../misc/samples.csv',header=T)
 
+#Metaplots
+setwd("metaplots/")
 #All samples CG & CHG metaplots
 for(x in c('all_genes','R500_genes','R500_syntelogs','R500_non-syntelogs','TO1000_genes','TO1000_syntelogs','TO1000_non-syntelogs')){
   df <- matrix(nrow=0,ncol=0)
@@ -143,3 +145,6 @@ for(x in c('all_genes','R500_genes','R500_syntelogs','R500_non-syntelogs','TO100
     }
   }
 }  
+
+#Total methylation levels
+setwd("../total_methylation")
