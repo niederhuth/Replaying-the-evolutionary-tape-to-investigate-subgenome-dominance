@@ -19,5 +19,5 @@ sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 #get total weighted mC
 echo "Get gene CDS methylation data for $sample"
 cd combined
-python ../../../scripts/all_gene_CDS_methylation.py $sample
+python ../../../scripts/all_genes_CDS_methylation.py $sample
 
