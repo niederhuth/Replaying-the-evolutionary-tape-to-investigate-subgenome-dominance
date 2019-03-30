@@ -146,8 +146,10 @@ def total_weighted_mC(allc,output=(),mc_type=['CG','CHG','CHH'],cutoff=0,chrs=[]
 #for calculating methylation levels in windows across the genome
 def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_size=100000,stepsize=50000,cutoff=0,chrs=[]):
 	#read in allc file
+	print("Reading allc file")
 	a = allc2bed(allc)
 	#create output data frame
+	print("Creating output dataframe")
 	c = ['Chr','Window']
 	columns=['Total_sites','Methylated_sites','Total_reads','Methylated_reads','Weighted_mC']
 	for d in mc_type:
@@ -155,14 +157,18 @@ def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CH
 			c = c + [d + '_' + e]
 	b = pd.DataFrame(columns=c)
 	#make windows
+	print("Making genome windows")
 	w_bed = pbt.bedtool.BedTool.window_maker(pbt.BedTool(genome_file).filter(chr_filter,chrs),g=genome_file,w=window_size,s=stepsize,i='srcwinnum')
 	#intersect bedfiles with pybedtools
+	print("Mapping DNA methylation data to windows")
 	mapping = pbt.bedtool.BedTool.intersect(a,w_bed,wa=True,wb=True)
 	del(w_bed,a)
 	#convert to pandas dataframe
+	print("Converting to pandas dataframe")
 	m = pd.read_table(mapping.fn,header=None,usecols=[13,6,7,8,9])
 	del(mapping)
 	#split srcwinnum
+	print("Formatting names")
 	f = m[13].str.split('_', n = 1, expand = True)
 	#make new columns from srcwinnum
 	m['Chr'] = f[0]
@@ -171,6 +177,7 @@ def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CH
 	#reorder data frame
 	m = m[['Chr','Window',13,6,7,8,9]]
 	#iterate over each chromosome
+	print("Calculating window methylation data")
 	for g in chrs:
 		#get windows for that specific chromosome
 		windows = list(m[m['Chr'].isin([str(g)])]['Window'].drop_duplicates())
@@ -190,6 +197,7 @@ def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CH
 			#append the results for that window to the dataframe
 			b = b.append(pd.DataFrame([j],columns=c),ignore_index=True)
 	#output results
+	print("Outputting results")
 	if output:
 		b.to_csv(output, sep='\t', index=False)
 	else:
