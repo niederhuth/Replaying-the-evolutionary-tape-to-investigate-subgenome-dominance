@@ -20,7 +20,7 @@ output2='results/uncorrected_R500_weighted_methylation.txt'
 output3='results/uncorrected_TO1000_weighted_methylation.txt'
 
 #get chromosome list
-chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t",sep="\t")[0])
+chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
 chrs = list(set(chrs).difference(filter_chr))
 
 #get total weighted mC
