@@ -12,14 +12,8 @@ export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
 
 #Set tmp directories
 export TMPDIR=$PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
-
 export TMP=$PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
-
 export TEMP=$PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
-
 
 #variables
 sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)

@@ -10,7 +10,6 @@
 cd $PBS_O_WORKDIR
 export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
 
-
 #List Variables
 sample=$(pwd | sed s/^.*\\///)
 header="##fileformat=VCFv4.1"
