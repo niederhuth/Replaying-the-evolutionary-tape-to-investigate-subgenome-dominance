@@ -8,6 +8,8 @@
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
+export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+
 
 #List Variables
 sample=$(pwd | sed s/^.*\\///)

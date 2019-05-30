@@ -8,6 +8,8 @@
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
+export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+
 
 #Get IMB218 sites mapped to Bo genome
 cd IMB218/combined

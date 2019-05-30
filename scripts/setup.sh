@@ -8,6 +8,8 @@
 #SBATCH --output=%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
+export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+
 i=$(pwd | sed s/^.*\\///)
 
 #Prep genome

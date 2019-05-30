@@ -8,6 +8,8 @@
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
+export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+
 mkdir combined
 
 #List Variables
@@ -22,7 +24,7 @@ adaptor1="AGATCGGAAGAGCACACGTCTGAAC"
 adaptor2="AGATCGGAAGAGCGTCGTGTAGGGA"
 aligner="bowtie2"
 aligner_options="--very-sensitive -X 1000"
-picard="/mnt/home/niederhu/anaconda3/share/picard-2.18.16-0"
+picard="/mnt/home/niederhu/miniconda3/envs/mC/share/picard-2.20.2-0"
 
 #Unzip fastq files
 echo "Decompressing fastq files"
