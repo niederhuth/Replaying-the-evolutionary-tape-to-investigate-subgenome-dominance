@@ -18,10 +18,9 @@ cutoff=0
 output='results/uncorrected_100kb_windows.txt'
 
 #get chromosome list
-chrs = list(pd.read_table(genome_file,header=None,usecols=[0],dtype='str')[0])
+chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str')[0],sep="\t")
 chrs = list(set(chrs).difference(filter_chr))
 
 #get gene metaplot data
 functions.genome_window_methylation(allc,genome_file,output=output,mc_type=mc_type,
 	window_size=window_size,stepsize=stepsize,cutoff=cutoff,chrs=chrs)
-

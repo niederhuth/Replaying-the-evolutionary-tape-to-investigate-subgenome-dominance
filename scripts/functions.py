@@ -79,10 +79,10 @@ def allc2bed(allc,return_bed=True):
 	#check if first line contains header
 	if header == 'chr\tpos\tstrand\tmc_class\tmc_count\ttotal\tmethylated':
 		#read in allc file to pandas dataframe
-		a = pd.read_table(allc,dtype={'chr':str,'pos':int,'strand':str,'mc_class':str,'mc_count':int,'total':int,'methylated':int})
+		a = pd.read_csv(allc,dtype={'chr':str,'pos':int,'strand':str,'mc_class':str,'mc_count':int,'total':int,'methylated':int},sep="\t")
 	else:
 		#read in allc file to pandas dataframe, add header if does not have one
-		a = pd.read_table(allc,names=['chr','pos','strand','mc_class','mc_count','total','methylated'],dtype={'chr':str,'pos':int,'strand':str,'mc_class':str,'mc_count':int,'total':int,'methylated':int})
+		a = pd.read_csv(allc,names=['chr','pos','strand','mc_class','mc_count','total','methylated'],dtype={'chr':str,'pos':int,'strand':str,'mc_class':str,'mc_count':int,'total':int,'methylated':int},sep="\t")
 	#if return_bed = True, convert to bedfile
 	if return_bed is True:
 		#add new columns
@@ -165,7 +165,7 @@ def genome_window_methylation(allc,genome_file,output=(),mc_type=['CG','CHG','CH
 	del(w_bed,a)
 	#convert to pandas dataframe
 	print("Converting to pandas dataframe")
-	m = pd.read_table(mapping.fn,header=None,usecols=[13,6,7,8,9])
+	m = pd.read_csv(mapping.fn,header=None,usecols=[13,6,7,8,9],sep="\t")
 	del(mapping)
 	#split srcwinnum
 	print("Formatting names")
@@ -224,8 +224,8 @@ def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=
 	a = allc2bed(allc)
 	print("Mapping sites to annotations")
 	mapping = pbt.bedtool.BedTool.intersect(a,combined_bed,wa=True)
-	print("Converting mapped sites to table") 
-	m = pd.read_table(mapping.fn, header=None, usecols = [0,1,5,6,7,8,9])
+	print("Converting mapped sites to table")
+	m = pd.read_csv(mapping.fn, header=None, usecols = [0,1,5,6,7,8,9],sep="\t")
 	#create new filtered allc file of sites mapping to regions
 	print("Reformat data and drop duplicate sites")
 	m.columns = ['chr','pos','strand','mc_class','mc_count','total','methylated']
@@ -285,7 +285,7 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 		mapping = pbt.bedtool.BedTool.intersect(a,w_bed,wa=True,wb=True)
 		del(w_bed,pw_bed,nw_bed)
 		#convert to pandas dataframe
-		m = pd.read_table(mapping.fn,header=None,usecols=[13,6,7,8,9])
+		m = pd.read_csv(mapping.fn,header=None,usecols=[13,6,7,8,9],sep="\t")
 		del(mapping)
 		#split srcwinnum
 		g = m[13].str.split('_', n = 1, expand = True)
@@ -361,7 +361,7 @@ def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG',
 		mapping = pbt.bedtool.BedTool.intersect(a,f,wa=True,wb=True)
 		del(a)
 		#convert to pandas dataframe
-		m = pd.read_table(mapping.fn,header=None,usecols=[18,6,7,8,9])
+		m = pd.read_csv(mapping.fn,header=None,usecols=[18,6,7,8,9],sep="\t")
 		del(mapping)
 		#split column 18
 		g = m[18].str.split(';', n = 1, expand = True)

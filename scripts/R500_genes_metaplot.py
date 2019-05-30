@@ -22,7 +22,7 @@ filtered_data_output='uncorrected_R500_genes_filtered_allc.tmp'
 output='results/uncorrected_R500_genes_metaplot.txt'
 
 #get chromosome list
-chrs = list(pd.read_table(genome_file,header=None,usecols=[0],dtype='str')[0])
+chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str')[0],sep="\t")
 chrs = [a for a in chrs if a[1] == "r"]
 
 #get gene metaplot data

@@ -21,7 +21,7 @@ filtered_output="uncorrected_all_exon_filtered_allc.tmp"
 output='results/uncorrected_all_genes_exon_methylation.txt'
 
 #get chromosome list
-chrs = list(pd.read_table(genome_file,header=None,usecols=[0],dtype='str')[0])
+chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str')[0],sep="\t")
 chrs = list(set(chrs).difference(filter_chr))
 
 #pre-filter data
@@ -35,4 +35,3 @@ print('Getting gene methylation data')
 functions.gene_methylation(filtered_output,annotations,genome_file,output=output,
 	mc_type=mc_type,updown_stream=updown_stream,
 	feature=first_feature,cutoff=cutoff,chrs=chrs)
-
