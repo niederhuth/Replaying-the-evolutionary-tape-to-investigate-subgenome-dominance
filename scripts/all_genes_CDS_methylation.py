@@ -21,7 +21,7 @@ filtered_output="uncorrected_all_CDS_filtered_allc.tmp"
 output='results/uncorrected_all_genes_CDS_methylation.txt'
 
 #get chromosome list
-chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str')[0],sep="\t")
+chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
 chrs = list(set(chrs).difference(filter_chr))
 
 #pre-filter data

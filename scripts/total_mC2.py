@@ -20,21 +20,21 @@ output2='results/corrected_R500_weighted_methylation.txt'
 output3='results/corrected_TO1000_weighted_methylation.txt'
 
 #get chromosome list
-chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str')[0],sep="\t")
+chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
 chrs = list(set(chrs).difference(filter_chr))
 
 #get total weighted mC
-functions.total_weighted_mC(allc, output=output, mc_type=mc_type, cutoff=cutoff, chrs=chrs)
+functions.total_weighted_mC(allc,output=output,mc_type=mc_type,cutoff=cutoff,chrs=chrs)
 
 #get IMB218 chromosome list
-chrs = list(pd.read_csv(genome_file2,header=None,usecols=[0],dtype='str')[0],sep="\t")
+chrs = list(pd.read_csv(genome_file2,header=None,usecols=[0],dtype='str',sep="\t")[0])
 chrs = list(set(chrs).difference(filter_chr))
 
 #get IMB218 total weighted mC
 functions.total_weighted_mC(allc,output=output2,mc_type=mc_type,cutoff=cutoff,chrs=chrs)
 
 #get TO1000 chromosome list
-chrs = list(pd.read_csv(genome_file3,header=None,usecols=[0],dtype='str')[0],sep="\t")
+chrs = list(pd.read_csv(genome_file3,header=None,usecols=[0],dtype='str',sep="\t")[0])
 chrs = list(set(chrs).difference(filter_chr))
 
 #get TO1000 weighted mC
