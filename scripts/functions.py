@@ -116,6 +116,9 @@ def get_mC_data(a,mc_type='C',cutoff=0):
 				d3 = d3 + int(c[6])
 				#add up total methylated reads covering a site
 				d4 = d4 + int(c[5])
+	#if no sites for that context, set to 'NA'
+	if d1 == 0:
+		d1 = d2 = d3 = d4 = 'NA'
 	#create list
 	e = [mc_type,d1,d2,d3,d4]
 	#return that list
@@ -375,32 +378,38 @@ def feature_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CH
 		m = pd.read_csv(mapping.fn,header=None,usecols=[18,6,7,8,9],sep="\t")
 		del(mapping)
 		#split column 18
-		g = m[18].str.split(';', n = 1, expand = True)
-		g = g[0].str.split('=', n = 1, expand = True)
+		#g = m[18].str.split(';', n = 1, expand = True)
+		#g = g[0].str.split('=', n = 1, expand = True)
 		#make new columns from column 18
-		m['Name'] = g[1]
+		m['Name'] = m[18].str.split(';', n = 1, expand = True)[0].str.split('=', n = 1, expand = True)[1]
 		m['Window'] = '.'
 		#reorder m
 		m = m[['Name','Window',18,6,7,8,9]]
 		#get gene names
-		g = m['Name'].drop_duplicates()
+		g = pd.read_csv(f_bed.fn,header=None,usecols=[2,8],sep="\t")
+		g = g[g[2]=="gene"][8].str.split(';', n = 1, expand = True)[0].str.split('=', n = 1, expand = True)[1]
 		#iterate list of gene names
 		for h in list(g):
 			#filter for rows matching specific gene
 			i = m[m['Name'].isin([str(h)])]
 			#make list for methylation data
-			j = [h]
+			j = [h]			
 			#iterate over each mC type and run get_mC_data
 			for k in mc_type:
 				#check if i is empty
-				if not i:
+				if i.empty:
 					#if empty, add 0 column
 					j += ['NA','NA','NA','NA','NA']
 				#else if not empty
 				else:
 					l = get_mC_data(i,mc_type=k,cutoff=cutoff)
-					#Calculate weighted methylation and add this to list of data for other mc_types
-					j += [l[1],l[2],l[3],l[4],(float64(l[4])/float64(l[3]))]
+					#Check if there are any sites
+					if l[1] == 'NA':
+						#If no sites, output 'NA'
+						j += ['NA','NA','NA','NA','NA']
+					else:
+						#Calculate weighted methylation and add this to list of data for other mc_types
+						j += [l[1],l[2],l[3],l[4],(float64(l[4])/float64(l[3]))]
 			#append the results for that window to the dataframe
 			b = b.append(pd.DataFrame([j],columns=c),ignore_index=True)
 	#output results

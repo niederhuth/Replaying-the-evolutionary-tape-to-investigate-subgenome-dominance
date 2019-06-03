@@ -32,6 +32,6 @@ functions.allc_annotation_filter(allc,annotations,genome_file,output=filtered_ou
 
 #get gene methylation data
 print('Getting gene methylation data')
-functions.gene_methylation(filtered_output,annotations,genome_file,output=output,
+functions.feature_methylation(filtered_output,annotations,genome_file,output=output,
 	mc_type=mc_type,updown_stream=updown_stream,
 	feature=first_feature,cutoff=cutoff,chrs=chrs)
