@@ -1,11 +1,12 @@
-import os
 import sys
-import gzip
-import itertools
 import pandas as pd
 import pybedtools as pbt
-from io import TextIOWrapper
+from os import remove
 from numpy import float64
+from subprocess import call
+from io import TextIOWrapper
+from itertools import product
+from gzip import open as gzopen
 
 #split large files into temporary files of smaller size
 def split_file(input,line_number=10000000):
@@ -17,7 +18,7 @@ def split_file(input,line_number=10000000):
 	files = ['split' + str(a) + '.tmp']
 	out=open('split' + str(a) + '.tmp','w')
 	#open input file
-	with TextIOWrapper(gzip.open(input,'rb')) as e:
+	with TextIOWrapper(gzopen(input,'rb')) as e:
 		#iterate over each line, adding an index
 		for index, line in enumerate(e):
 			#test if index fits between upper and lower limits and write to file
@@ -66,14 +67,14 @@ def expand_nucleotide_code(mc_type=['C']):
 		mc_class.extend(['CGN'])
 	mc_class_final = []
 	for motif in mc_class:
-		mc_class_final.extend([''.join(i) for i in itertools.product(*[iub_dict[nuc] for nuc in motif])])
+		mc_class_final.extend([''.join(i) for i in product(*[iub_dict[nuc] for nuc in motif])])
 	return(set(mc_class_final))
 
 #Read allc file and convert to bedfile
 def allc2bed(allc,return_bed=True):
 	#get first line
 	if allc.endswith('gz'):
-		header = gzip.open(allc).readline().rstrip()
+		header = gzopen(allc).readline().rstrip()
 	else:
 		header = open(allc).readline().rstrip()
 	#check if first line contains header
@@ -214,7 +215,7 @@ def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=
 	flank_bed = pbt.bedtool.BedTool.flank(bed,g=genome_file,l=updown_stream,r=updown_stream,s=True).saveas('f_bed.tmp')
 	#correct sites where the start is greater than the end
 	command="awk -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' f_bed.tmp > tmp; mv tmp f_bed.tmp"
-	subprocess.call(command, shell=True)
+	call(command, shell=True)
 	#read in annotations and filter by second annotation, typically a something like coding sequences 'CDS'
 	#this is the annotation used to first filter the data
 	print("Filtering second feature annotations")
@@ -243,7 +244,7 @@ def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=
 	print("Removing temporary files")
 	tmp=['f_bed.tmp','c_bed.tmp']
 	for b in tmp:
-		os.remove(b)
+		remove(b)
 
 #output methylation data for making metaplots of features (e.g. genes, CDS, transposons), will not filter out data from introns, etc...use gene_metaplot for that
 def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,feature=(),cutoff=0,chrs=[]):
@@ -269,7 +270,11 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 	else:
 		print("Get flanking regions")
 		u_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=updown_stream,r=0,s=True).saveas('u_bed.tmp')
+		command="awk -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' u_bed.tmp > tmp; mv tmp u_bed.tmp"
+		call(command, shell=True)
 		d_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=0,r=updown_stream,s=True).saveas('d_bed.tmp')
+		command="awk -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' d_bed.tmp > tmp; mv tmp d_bed.tmp"
+		call(command, shell=True)
 		regions=[u_bed,f_bed,d_bed]
 	#set window number to 1
 	window = 1
@@ -323,7 +328,7 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 	print("Removing temporary files")
 	tmp=['f_bed.tmp','u_bed.tmp','d_bed.tmp','p_bed.tmp','n_bed.tmp']
 	for n in tmp:
-		os.remove(n)
+		remove(n)
 
 #output methylation data for making metaplots of features (e.g. genes, CDS, transposons), for use when need to first filter data from another feature, such as intron sequences
 def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],window_number=60,updown_stream=2000,cutoff=0,first_feature=(),second_feature=(),chrs=[],filtered_data_output='annotation_filtered_allc.tmp',remove_tmp=True):
@@ -335,7 +340,7 @@ def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CH
 	metaplot(filtered_data_output,annotations,genome_file,output=output,mc_type=mc_type,window_number=window_number,updown_stream=updown_stream,feature=first_feature,cutoff=0,chrs=chrs)
 	#remove annotation filtered allc file, if set to false, this will be kept
 	if remove_tmp:
-		os.remove(filtered_data_output)
+		remove(filtered_data_output)
 
 #Calculate methylation levels for features
 def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],updown_stream=0,feature=(),cutoff=0,chrs=[]):
@@ -356,7 +361,10 @@ def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG',
 	#if updown_stream specified, create bed files for upstream regions (u_bed) and down stream regions (d_bed)
 	else:
 		u_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=updown_stream,r=0,s=True).saveas('u_bed.tmp')
+		command="awk -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' u_bed.tmp > tmp; mv tmp u_bed.tmp"
+		call(command, shell=True)
 		d_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=0,r=updown_stream,s=True).saveas('d_bed.tmp')
+		command="awk -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' d_bed.tmp > tmp; mv tmp d_bed.tmp"
 		regions=['u_bed.tmp','d_bed.tmp']
 	#iterate over each region and collect methylation data
 	for f in regions:
@@ -396,4 +404,4 @@ def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG',
 		return b
 	#remove temporary files created
 	for n in regions:
-		os.remove(n)
+		remove(n)
