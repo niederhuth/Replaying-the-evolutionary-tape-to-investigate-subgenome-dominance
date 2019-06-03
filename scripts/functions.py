@@ -343,12 +343,12 @@ def gene_metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CH
 		remove(filtered_data_output)
 
 #Calculate methylation levels for features
-def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],updown_stream=0,feature=(),cutoff=0,chrs=[]):
+def feature_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],updown_stream=0,feature=(),cutoff=0,chrs=[]):
 	#read in allc file
 	a = allc2bed(allc)
 	#create output data frame
 	c = ['Feature']
-	columns=['Weighted_mC']
+	columns=['Total_C','Methylated_mC','Total_Reads','Methylated_Reads','Weighted_mC']
 	for d in mc_type:
 		for e in columns:
 			c = c + [d + '_' + e]
@@ -384,17 +384,23 @@ def gene_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CHG',
 		m = m[['Name','Window',18,6,7,8,9]]
 		#get gene names
 		g = m['Name'].drop_duplicates()
-		#iterate list of window numbers
+		#iterate list of gene names
 		for h in list(g):
-			#filter for rows matching specific window number
+			#filter for rows matching specific gene
 			i = m[m['Name'].isin([str(h)])]
 			#make list for methylation data
 			j = [h]
 			#iterate over each mC type and run get_mC_data
 			for k in mc_type:
-				l = get_mC_data(i,mc_type=k,cutoff=cutoff)
-				#Calculate weighted methylation and add this to list of data for other mc_types
-				j += [(float64(l[4])/float64(l[3]))]
+				#check if i is empty
+				if not i:
+					#if empty, add 0 column
+					j += ['NA','NA','NA','NA','NA']
+				#else if not empty
+				else:
+					l = get_mC_data(i,mc_type=k,cutoff=cutoff)
+					#Calculate weighted methylation and add this to list of data for other mc_types
+					j += [l[1],l[2],l[3],l[4],(float64(l[4])/float64(l[3]))]
 			#append the results for that window to the dataframe
 			b = b.append(pd.DataFrame([j],columns=c),ignore_index=True)
 	#output results
