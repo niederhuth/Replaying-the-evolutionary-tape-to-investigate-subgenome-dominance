@@ -212,6 +212,9 @@ def allc_annotation_filter(allc,annotations,genome_file,output=(),updown_stream=
 	#create bedfile of flanking regions (if specified)
 	print("Getting flanking regions")
 	flank_bed = pbt.bedtool.BedTool.flank(bed,g=genome_file,l=updown_stream,r=updown_stream,s=True).saveas('f_bed.tmp')
+	#correct sites where the start is greater than the end
+	command="awk -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' f_bed.tmp > tmp; mv tmp f_bed.tmp"
+	subprocess.call(command, shell=True)
 	#read in annotations and filter by second annotation, typically a something like coding sequences 'CDS'
 	#this is the annotation used to first filter the data
 	print("Filtering second feature annotations")
