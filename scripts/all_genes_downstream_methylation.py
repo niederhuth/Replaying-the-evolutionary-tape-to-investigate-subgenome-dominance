@@ -1,6 +1,8 @@
-import os
 import sys
 import pandas as pd
+import pybedtools as pbt
+from os import remove
+from subprocess import call
 
 functionsfile = '../../../scripts/functions.py'
 sys.path.append(os.path.dirname(os.path.expanduser(functionsfile)))
@@ -13,25 +15,27 @@ annotations='../../ref/annotations/combined.gff'
 genome_file='../../ref/combined/combined.genome'
 filter_chr=['ChrL','37_Plastid','37_Mitochondria']
 mc_type=['CG','CHG','CHH']
-updown_stream=0
+updown_stream=2000
 cutoff=0
 first_feature='gene'
-second_feature='CDS'
-filtered_output="all_CDS_filtered_allc.tmp"
-output='results/all_genes_CDS_methylation.txt'
+filtered_output="all_downstream_filtered_allc.tmp"
+output='results/all_genes_downstream_methylation.txt'
 
 #get chromosome list
 chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
 chrs = list(set(chrs).difference(filter_chr))
 
-#pre-filter data
-print('Filtering allc file')
-functions.allc_annotation_filter(allc,annotations,genome_file,output=filtered_output,
-	updown_stream=updown_stream,first_feature=first_feature,
-	second_feature=second_feature,chrs=chrs)
+#extract downstream regions
+d_bed = pbt.bedtool.BedTool.flank(annotations,g=genome_file,l=updown_stream,r=0,s=True).saveas('bed.tmp')
+#correct sites where the start is greater than the end
+command="awk -v FS='\t' -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' bed.tmp > tmp; mv tmp bed.tmp"
+call(command, shell=True)
 
-#get gene methylation data
+#get promoter methylation data
 print('Getting gene methylation data')
 functions.feature_methylation(filtered_output,annotations,genome_file,output=output,
 	mc_type=mc_type,updown_stream=updown_stream,
 	feature=first_feature,cutoff=cutoff,chrs=chrs)
+
+#remove tmp files
+remove('bed.tmp')

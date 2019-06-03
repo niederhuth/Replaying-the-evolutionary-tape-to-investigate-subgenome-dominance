@@ -272,10 +272,14 @@ def metaplot(allc,annotations,genome_file,output=(),mc_type=['CG','CHG','CHH'],w
 	#if updown_stream specified, create bed files for upstream regions (u_bed) and down stream regions (d_bed)
 	else:
 		print("Get flanking regions")
+		#upstream regions
 		u_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=updown_stream,r=0,s=True).saveas('u_bed.tmp')
+		#correct sites where the start is greater than the end
 		command="awk -v FS='\t' -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' u_bed.tmp > tmp; mv tmp u_bed.tmp"
 		call(command, shell=True)
+		#downstream regions
 		d_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=0,r=updown_stream,s=True).saveas('d_bed.tmp')
+		#correct sites where the start is greater than the end
 		command="awk -v FS='\t' -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' d_bed.tmp > tmp; mv tmp d_bed.tmp"
 		call(command, shell=True)
 		regions=[u_bed,f_bed,d_bed]
@@ -363,11 +367,16 @@ def feature_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CH
 		regions=['f_bed.tmp']
 	#if updown_stream specified, create bed files for upstream regions (u_bed) and down stream regions (d_bed)
 	else:
+		#upstream regions
 		u_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=updown_stream,r=0,s=True).saveas('u_bed.tmp')
+		#correct sites where the start is greater than the end
 		command="awk -v FS='\t' -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' u_bed.tmp > tmp; mv tmp u_bed.tmp"
 		call(command, shell=True)
+		#downstream regions
 		d_bed = pbt.bedtool.BedTool.flank(f_bed,g=genome_file,l=0,r=updown_stream,s=True).saveas('d_bed.tmp')
+		#correct sites where the start is greater than the end
 		command="awk -v FS='\t' -v OFS='\t' '{$5=($4>$5&&$4==1?$4:$5)}; {$4=($4>$5&&$4!=1?$5:$4)} 1' d_bed.tmp > tmp; mv tmp d_bed.tmp"
+		call(command, shell=True)
 		regions=['u_bed.tmp','d_bed.tmp']
 	#iterate over each region and collect methylation data
 	for f in regions:

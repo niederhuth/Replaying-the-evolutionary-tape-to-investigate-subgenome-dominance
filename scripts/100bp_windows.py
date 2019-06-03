@@ -15,7 +15,7 @@ mc_type=['CG','CHG','CHH']
 window_size=100
 stepsize=100
 cutoff=0
-output='results/uncorrected_100bp_windows.txt'
+output='results/100bp_windows.txt'
 
 #get chromosome list
 chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
