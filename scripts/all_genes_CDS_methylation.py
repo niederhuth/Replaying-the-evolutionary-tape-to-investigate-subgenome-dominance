@@ -17,8 +17,8 @@ updown_stream=0
 cutoff=0
 first_feature='gene'
 second_feature='CDS'
-filtered_output="uncorrected_all_CDS_filtered_allc.tmp"
-output='results/uncorrected_all_genes_CDS_methylation.txt'
+filtered_output="all_CDS_filtered_allc.tmp"
+output='results/all_genes_CDS_methylation.txt'
 
 #get chromosome list
 chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])

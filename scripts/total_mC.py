@@ -15,9 +15,9 @@ genome_file3='../../ref/TO1000/TO1000.genome'
 filter_chr=['ChrL','37_Plastid','37_Mitochondria']
 mc_type=['CG','CHG','CHH']
 cutoff=0
-output='results/uncorrected_total_weighted_methylation.txt'
-output2='results/uncorrected_R500_weighted_methylation.txt'
-output3='results/uncorrected_TO1000_weighted_methylation.txt'
+output='results/total_weighted_methylation.txt'
+output2='results/R500_weighted_methylation.txt'
+output3='results/TO1000_weighted_methylation.txt'
 
 #get chromosome list
 chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])

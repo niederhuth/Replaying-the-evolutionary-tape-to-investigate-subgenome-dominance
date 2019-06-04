@@ -18,8 +18,8 @@ updown_stream=2000
 cutoff=0
 first_feature='gene'
 second_feature='CDS'
-filtered_data_output='uncorrected_all_genes_filtered_allc.tmp'
-output='results/uncorrected_all_genes_metaplot.txt'
+filtered_data_output='all_genes_filtered_allc.tmp'
+output='results/all_genes_metaplot.txt'
 
 #get chromosome list
 chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
