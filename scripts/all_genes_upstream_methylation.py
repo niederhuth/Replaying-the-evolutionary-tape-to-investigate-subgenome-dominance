@@ -37,7 +37,7 @@ call(command, shell=True)
 #get promoter methylation data
 print('Getting upstream methylation data')
 functions.feature_methylation(filtered_output,flank_bed,genome_file,output=output,
-	mc_type=mc_type,updown_stream=updown_stream,
+	mc_type=mc_type,updown_stream=0,
 	feature=first_feature,cutoff=cutoff,chrs=chrs)
 
 #remove tmp files
