@@ -1,7 +1,7 @@
 Sample,Line,Generation,Order
 TO1000,Parent,TO1000,1
 IMB218,Parent,R500,2
-combined2,Parent,combined,3
+mock,Parent,mock,3
 100S5,EL100,G5,4
 100S10,EL100,G10,5
 1100S1,EL1100,G1,6
