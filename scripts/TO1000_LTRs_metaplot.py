@@ -18,7 +18,7 @@ updown_stream=2000
 cutoff=0
 first_feature='gene'
 second_feature='CDS'
-filtered_data_output='../combined/TO1000_LTRs_filtered_allc.tmp'
+filtered_data_output='TO1000_LTRs_filtered_allc.tmp'
 output='results/TO1000_LTRs_metaplot.txt'
 
 #get chromosome list

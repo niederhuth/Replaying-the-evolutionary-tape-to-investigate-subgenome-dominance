@@ -20,6 +20,6 @@ sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 
 #get total weighted mC
 echo "Get LTR metaplot data for $sample"
-cd combined-tmp
+cd combined
 python ../../../scripts/TO1000_LTRs_metaplot.py $sample
 

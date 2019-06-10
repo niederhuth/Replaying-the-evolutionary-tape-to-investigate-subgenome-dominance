@@ -116,10 +116,7 @@ def get_mC_data(a,mc_type='C',cutoff=0):
 				d3 = d3 + int(c[6])
 				#add up total methylated reads covering a site
 				d4 = d4 + int(c[5])
-<<<<<<< HEAD
-=======
 	#if no sites for that context, set to 'NA'
->>>>>>> 8367a1a1a7b682c3d313b15dd92c3ebd23230cd3
 	if d1 == 0:
 		d1 = d2 = d3 = d4 = 'NA'
 	#create list
