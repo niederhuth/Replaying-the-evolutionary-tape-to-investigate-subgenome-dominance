@@ -16,8 +16,8 @@ mc_type=['CG','CHG','CHH']
 window_number=60
 updown_stream=2000
 cutoff=0
-first_feature='gene'
-second_feature='CDS'
+first_feature=()
+second_feature=()
 filtered_data_output='../combined/R500_LTRs_filtered_allc.tmp'
 output='../combined/results/R500_LTRs_metaplot.txt'
 
