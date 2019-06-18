@@ -110,3 +110,9 @@ ggbiplot(df1.pca, obs.scale = 1, var.scale = 1,
          circle = TRUE)
 
 
+for(i in list.files(pattern=".csv")){
+  
+  
+}
+
+df1 <- read.table("RS_100S1.csv",header=T,sep=",",row.names=1)

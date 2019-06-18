@@ -5,16 +5,14 @@ library(reshape2)
 library(scales)
 
 samples <- read.csv('../misc/samples.csv',header=T)
-plots <- c('all_genes','R500_genes','TO1000_genes','R500_syntelogs','R500_non-syntelogs','TO1000_syntelogs','TO1000_non-syntelogs','all_LTRs')
+plots <- c('all_genes','R500_genes','TO1000_genes','R500_syntelogs','R500_non-syntelogs','TO1000_syntelogs','TO1000_non-syntelogs','all_LTRs','R500_LTRs','TO1000_LTRs')
 controls <- c("TO1000","IMB218","mock")
-#plots <- c('all_LTRs')
 
 #Metaplots
 setwd("metaplots/")
 #All samples CG & CHG metaplots
 for(x in plots){
   df1 <- matrix(nrow=0,ncol=0)
-  #for(i in names <- c('100S5','100S10','1100S1','1100S5','1100S10','200S1','200S5','200S10','300S5','300S10','400S1','400S5','400S10','600S1','600S5','600S10','TO1000','IMB218')){
   for(i in samples$Sample){
     input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
     df2 <- read.table(input,header=T,sep="\t")[2:4]
@@ -170,8 +168,8 @@ for(x in c('combined','R500','TO1000')){
     rm(df2)
   }
   df1$generation2 <- ifelse(is.na(df1$generation2),0,df1$generation2)
-  
-  plot <- ggplot(df1,aes(x=reorder(sample,order),y=value,fill=Var2)) + 
+
+  plot <- ggplot(df1,aes(x=reorder(sample,order),y=value,fill=Var2)) +
     geom_bar(stat="identity",position="dodge") +
     theme(panel.background=element_blank(),
           panel.grid=element_blank(),
@@ -179,17 +177,17 @@ for(x in c('combined','R500','TO1000')){
           axis.text.x=element_text(color="black",angle=315,hjust=0),
           axis.ticks=element_line(color="black"),
           axis.title=element_text(color="black"),
-          legend.position="right", 
+          legend.position="right",
           axis.line=element_line(color="black")) +
     ylab("Percent methylation") +
     xlab("") +
-    scale_y_continuous(expand=c(0,0), labels=percent) 
+    scale_y_continuous(expand=c(0,0), labels=percent)
     #scale_fill_manual("",values=c("dodgerblue2","darkolivegreen3","tomato2"))
   ggsave(paste(x,"total_methylation.pdf",sep="_"),plot,path="plots/")
-  
+
   for(y in c('CG','CHG','CHH')){
     df2 <- df1[df1$Var2==y,]
-    plot <- ggplot(df2,aes(x=reorder(sample,generation2),y=value,fill=generation)) + 
+    plot <- ggplot(df2,aes(x=reorder(sample,generation2),y=value,fill=generation)) +
               geom_bar(stat="identity",position="dodge") +
               theme(panel.background=element_blank(),
                     panel.grid=element_blank(),
@@ -197,7 +195,7 @@ for(x in c('combined','R500','TO1000')){
                     axis.text.x=element_text(color="black",angle=315,hjust=0),
                     axis.ticks=element_line(color="black"),
                     axis.title=element_text(color="black"),
-                    legend.position="right", 
+                    legend.position="right",
                     axis.line=element_line(color="black")) +
               ylab("Percent methylation") +
               xlab("") +
@@ -226,7 +224,7 @@ for(j in line <- unique(samples$Line)){
     df1$generation2 <- ifelse(is.na(df1$generation2),0,df1$generation2)
     for(y in c('CG','CHG','CHH')){
       df2 <- df1[df1$Var2==y,]
-      plot <- ggplot(df2,aes(x=reorder(sample,generation2),y=value,fill=generation)) + 
+      plot <- ggplot(df2,aes(x=reorder(sample,generation2),y=value,fill=generation)) +
                 geom_bar(stat="identity",position="dodge") +
                 theme(panel.background=element_blank(),
                       panel.grid=element_blank(),
@@ -234,7 +232,7 @@ for(j in line <- unique(samples$Line)){
                       axis.text.x=element_text(color="black",angle=315,hjust=0),
                       axis.ticks=element_line(color="black"),
                       axis.title=element_text(color="black"),
-                      legend.position="right", 
+                      legend.position="right",
                       axis.line=element_line(color="black")) +
                 ylab("Percent methylation") +
                 xlab("") +
@@ -246,4 +244,3 @@ for(j in line <- unique(samples$Line)){
 }
 
 setwd("../")
-
