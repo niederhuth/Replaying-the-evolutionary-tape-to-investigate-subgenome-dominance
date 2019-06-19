@@ -116,3 +116,26 @@ for(i in list.files(pattern=".csv")){
 }
 
 df1 <- read.table("RS_100S1.csv",header=T,sep=",",row.names=1)
+
+
+
+
+
+samples <- read.csv('../../misc/samples.csv',header=T)
+df1 <- matrix(nrow=0,ncol=0)
+for(i in samples[c(4:12,14:16,18:20),]$Sample){
+  i2 <- paste("RS_",i,".csv",sep="")
+  i3 <- paste("../gene_methylation/upstream/",i,"_all_genes_upstream_methylation.txt",sep="")
+  df2 <- read.table(i2,header=T,sep=",",row.names=1)[,c(9,13,23,27,28,31,32,33)]
+  df2$sample <- i
+  df2$order <- ifelse(df2$Generation=="S1",1,ifelse(df2$Generation=="S5",2,3))
+  df2$line <- paste("EL",gsub("S.*","",i),sep="")
+  df3 <- read.table(i3,header=T,sep="\t")[,c(1,6,11,16)]
+  df4 <- merge(merge(df2,df3,by.x="TO1000GeneID",by.y="Feature"),df3,by.x="R500GeneID",by.y="Feature")
+  colnames(df4) <- c(colnames(df4[,1:11]),"TO1000_mCG","TO1000_mCHG","TO1000_mCHH","R500_mCG","R500_mCHG","R500_mCHH")
+  df1 <- rbind(df1,df4)
+  #rm(i,i2,i3,df2,df3)
+}
+
+write.table(df1,"test.tsv",sep="\t",row.names=F,quote=F)
+
