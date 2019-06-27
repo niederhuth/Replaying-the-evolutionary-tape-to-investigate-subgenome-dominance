@@ -17,7 +17,7 @@ for(x in plots){
   df1 <- matrix(nrow=0,ncol=0)
   for(i in samples$Sample){
     input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-    if(!file.exists(input)){
+    if(file.exists(input)){
       df2 <- read.table(input,header=T,sep="\t")[2:4]
       colnames(df2) <- c('CG','CHG','CHH')
       df2$sample <- c(i)
@@ -25,6 +25,8 @@ for(x in plots){
       df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
       df1 <- rbind(df1,df2)
       rm(df2)
+    } else {
+      next
     }
   }
   df1$window <- c(1:60)
@@ -52,8 +54,8 @@ for(x in plots){
 for(x in plots){
   df1 <- matrix(nrow=0,ncol=0)
   for(i in samples$Sample){
-    if(!file.exists(input)){
-      input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
+    input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
+    if(file.exists(input)){
       df2 <- read.table(input,header=T,sep="\t")[2:4]
       colnames(df2) <- c('CG','CHG','CHH')
       df2$sample <- c(i)
@@ -61,6 +63,8 @@ for(x in plots){
       df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
       df1 <- rbind(df1,df2)
       rm(df2)
+    } else {
+      next
     }
   }
   df1$window <- c(1:60)
@@ -89,7 +93,7 @@ for(x in plots){
     df1 <- matrix(nrow=0,ncol=0)
     for(i in c(as.vector(samples[samples$Line==j,]$Sample),controls)){
       input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-      if(!file.exists(input)){
+      if(file.exists(input)){
         df2 <- read.table(input,header=T,sep="\t")[2:4]
         colnames(df2) <- c('CG','CHG','CHH')
         df2$sample <- c(i)
@@ -97,6 +101,8 @@ for(x in plots){
         df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
         df1 <- rbind(df1,df2)
         rm(df2)
+      } else {
+        next
       }
     }
     df1$window <- c(1:60)
@@ -127,7 +133,7 @@ for(x in plots){
     df1 <- matrix(nrow=0,ncol=0)
     for(i in c(as.vector(samples[samples$Line==j,]$Sample),controls)){
       input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-      if(!file.exists(input)){
+      if(file.exists(input)){
         df2 <- read.table(input,header=T,sep="\t")[2:4]
         colnames(df2) <- c('CG','CHG','CHH')
         df2$sample <- c(i)
@@ -135,6 +141,8 @@ for(x in plots){
         df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
         df1 <- rbind(df1,df2)
         rm(df2)
+      } else {
+        next
       }
     }
     df1$window <- c(1:60)
