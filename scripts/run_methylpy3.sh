@@ -9,8 +9,9 @@
 
 cd $PBS_O_WORKDIR
 export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export LD_LIBRARY_PATH="$HOME/minicond3/envs/mC/lib:$LD_LIBRARY_PATH"
 
-mkdir R500
+mkdi rR500
 
 #List Variables
 sample=$(pwd | sed s/^.*\\///)

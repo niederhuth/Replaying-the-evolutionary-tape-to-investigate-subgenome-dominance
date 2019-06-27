@@ -23,7 +23,7 @@ output='results/TO1000_genes_metaplot.txt'
 
 #get chromosome list
 chrs = list(pd.read_csv(genome_file,header=None,usecols=[0],dtype='str',sep="\t")[0])
-chrs = list(set(chrs).difference(filter_chr))
+chrs = [a for a in chrs if a[1] == "o"]
 
 #get gene metaplot data
 functions.gene_metaplot(allc,annotations,genome_file,output=output,
