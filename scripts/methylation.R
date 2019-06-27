@@ -5,7 +5,9 @@ library(reshape2)
 library(scales)
 
 samples <- read.csv('../misc/samples.csv',header=T)
-plots <- c('all_genes','R500_genes','TO1000_genes','R500_syntelogs','R500_non-syntelogs','TO1000_syntelogs','TO1000_non-syntelogs','all_LTRs','R500_LTRs','TO1000_LTRs')
+plots <- c('all_genes','R500_genes','TO1000_genes','R500_syntelogs','R500_non-syntelogs','TO1000_syntelogs',
+'TO1000_non-syntelogs','all_LTRs','R500_LTRs','TO1000_LTRs','R500_nonbiased','R500_BnAbiased','R500_BnCbiased',
+'TO1000_nonbiased','TO1000_BnAbiased','TO1000_BnCbiased')
 controls <- c("TO1000","IMB218","mock")
 
 #Metaplots
@@ -15,13 +17,15 @@ for(x in plots){
   df1 <- matrix(nrow=0,ncol=0)
   for(i in samples$Sample){
     input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-    df2 <- read.table(input,header=T,sep="\t")[2:4]
-    colnames(df2) <- c('CG','CHG','CHH')
-    df2$sample <- c(i)
-    df2 <- melt(df2)
-    df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
-    df1 <- rbind(df1,df2)
-    rm(df2)
+    if(!file.exists(input)){
+      df2 <- read.table(input,header=T,sep="\t")[2:4]
+      colnames(df2) <- c('CG','CHG','CHH')
+      df2$sample <- c(i)
+      df2 <- melt(df2)
+      df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
+      df1 <- rbind(df1,df2)
+      rm(df2)
+    }
   }
   df1$window <- c(1:60)
 
@@ -47,16 +51,17 @@ for(x in plots){
 #All samples CHH metaplots
 for(x in plots){
   df1 <- matrix(nrow=0,ncol=0)
-  #for(i in names <- c('100S5','100S10','1100S1','1100S5','1100S10','200S1','200S5','200S10','300S5','300S10','400S1','400S5','400S10','600S1','600S5','600S10','TO1000','IMB218')){
   for(i in samples$Sample){
-    input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-    df2 <- read.table(input,header=T,sep="\t")[2:4]
-    colnames(df2) <- c('CG','CHG','CHH')
-    df2$sample <- c(i)
-    df2 <- melt(df2)
-    df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
-    df1 <- rbind(df1,df2)
-    rm(df2)
+    if(!file.exists(input)){
+      input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
+      df2 <- read.table(input,header=T,sep="\t")[2:4]
+      colnames(df2) <- c('CG','CHG','CHH')
+      df2$sample <- c(i)
+      df2 <- melt(df2)
+      df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
+      df1 <- rbind(df1,df2)
+      rm(df2)
+    }
   }
   df1$window <- c(1:60)
 
@@ -84,13 +89,15 @@ for(x in plots){
     df1 <- matrix(nrow=0,ncol=0)
     for(i in c(as.vector(samples[samples$Line==j,]$Sample),controls)){
       input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-      df2 <- read.table(input,header=T,sep="\t")[2:4]
-      colnames(df2) <- c('CG','CHG','CHH')
-      df2$sample <- c(i)
-      df2 <- melt(df2)
-      df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
-      df1 <- rbind(df1,df2)
-      rm(df2)
+      if(!file.exists(input)){
+        df2 <- read.table(input,header=T,sep="\t")[2:4]
+        colnames(df2) <- c('CG','CHG','CHH')
+        df2$sample <- c(i)
+        df2 <- melt(df2)
+        df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
+        df1 <- rbind(df1,df2)
+        rm(df2)
+      }
     }
     df1$window <- c(1:60)
 
@@ -120,13 +127,15 @@ for(x in plots){
     df1 <- matrix(nrow=0,ncol=0)
     for(i in c(as.vector(samples[samples$Line==j,]$Sample),controls)){
       input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
-      df2 <- read.table(input,header=T,sep="\t")[2:4]
-      colnames(df2) <- c('CG','CHG','CHH')
-      df2$sample <- c(i)
-      df2 <- melt(df2)
-      df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
-      df1 <- rbind(df1,df2)
-      rm(df2)
+      if(!file.exists(input)){
+        df2 <- read.table(input,header=T,sep="\t")[2:4]
+        colnames(df2) <- c('CG','CHG','CHH')
+        df2$sample <- c(i)
+        df2 <- melt(df2)
+        df2$generation <- c(as.character(samples[samples$Sample==i,]$Generation))
+        df1 <- rbind(df1,df2)
+        rm(df2)
+      }
     }
     df1$window <- c(1:60)
 
