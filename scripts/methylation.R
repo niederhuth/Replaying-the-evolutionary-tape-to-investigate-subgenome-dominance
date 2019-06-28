@@ -16,7 +16,7 @@ setwd("metaplots/")
 for(x in plots){
   df1 <- matrix(nrow=0,ncol=0)
   for(i in samples$Sample){
-    input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
+    input=paste(x,paste(i,x,"metaplot.txt.gz",sep="_"),sep="/")
     if(file.exists(input)){
       df2 <- read.table(input,header=T,sep="\t")[2:4]
       colnames(df2) <- c('CG','CHG','CHH')
@@ -46,7 +46,7 @@ for(x in plots){
       scale_x_continuous(labels=c("-2000","TSS'","TTS'","+2000"),breaks=c(1, 20, 40, 60))
       scale_color_manual("",values=c("tomato3","orange3","magenta3","royalblue3"))
 
-    ggsave(paste(x,y,"_metaplot.pdf",sep="_"),plot,path="plots/")
+    ggsave(paste(x,y,"metaplot.pdf",sep="_"),plot,path="plots/")
   }
 
   for(y in c('CHH')){
@@ -63,7 +63,7 @@ for(x in plots){
       geom_vline(xintercept=40,linetype="longdash",color="grey55") +
       scale_x_continuous(labels=c("-2000","TSS'","TTS'","+2000"),breaks=c(1, 20, 40, 60))
 
-    ggsave(paste(x,y,"_metaplot.pdf",sep="_"),plot,path="plots/")
+    ggsave(paste(x,y,"metaplot.pdf",sep="_"),plot,path="plots/")
   }
 }
 
@@ -72,7 +72,7 @@ for(x in plots){
   for(j in line <- unique(samples$Line)){
     df1 <- matrix(nrow=0,ncol=0)
     for(i in c(as.vector(samples[samples$Line==j,]$Sample),controls)){
-      input=paste(x,paste(i,x,"metaplot.txt",sep="_"),sep="/")
+      input=paste(x,paste(i,x,"metaplot.txt.gz",sep="_"),sep="/")
       if(file.exists(input)){
         df2 <- read.table(input,header=T,sep="\t")[2:4]
         colnames(df2) <- c('CG','CHG','CHH')
@@ -103,7 +103,7 @@ for(x in plots){
       scale_x_continuous(labels=c("-2000","TSS'","TTS'","+2000"),breaks=c(1, 20, 40, 60))
       scale_color_manual("",values=c("tomato3","orange3","magenta3","royalblue3"))
 
-    ggsave(paste(x,j,y,"_metaplot.pdf",sep="_"),plot,path="plots/")
+    ggsave(paste(x,j,y,"metaplot.pdf",sep="_"),plot,path="plots/")
   }
 
   for(y in c('CHH')){
@@ -121,7 +121,7 @@ for(x in plots){
       scale_x_continuous(labels=c("-2000","TSS'","TTS'","+2000"),breaks=c(1, 20, 40, 60))
       scale_color_manual("",values=c("tomato3","orange3","magenta3","royalblue3"))
 
-    ggsave(paste(x,j,y,"_metaplot.pdf",sep="_"),plot,path="plots/")
+    ggsave(paste(x,j,y,"metaplot.pdf",sep="_"),plot,path="plots/")
   }
 }
 
@@ -130,7 +130,7 @@ for(a in c("R500","TO1000")){
   df1 <- matrix(nrow=0,ncol=0)
   for(b in c("BnA","BnC","Non")){
     for(i in samples$Sample){
-      input=paste(paste(a,"_",b,"biased",sep=""),paste(i,a,paste(b,"biased",sep=""),"metaplot.txt",sep="_"),sep="/")
+      input=paste(paste(a,"_",b,"biased",sep=""),paste(i,a,paste(b,"biased",sep=""),"metaplot.txt.gz",sep="_"),sep="/")
       if(file.exists(input)){
         df2 <- read.table(input,header=T,sep="\t")[2:4]
         colnames(df2) <- c('CG','CHG','CHH')
@@ -147,7 +147,7 @@ for(a in c("R500","TO1000")){
     }
   }
   df1$window <- c(1:60)
-  
+
   for(d in c('CG','CHG')){
     df2 <- df1[df1$variable==d,]
     plot <- ggplot(df2, aes(x=window,y=value,group=sample_bias,color=bias)) +
@@ -162,10 +162,10 @@ for(a in c("R500","TO1000")){
       geom_vline(xintercept=40,linetype="longdash",color="grey55") +
       scale_x_continuous(labels=c("-2000","TSS'","TTS'","+2000"),breaks=c(1, 20, 40, 60))
     #scale_color_manual("",values=c("tomato3","orange3","magenta3","royalblue3"))
-    
-    ggsave(paste(a,'bias',d,"_metaplot.pdf",sep="_"),plot,path="plots/")
+
+    ggsave(paste(a,'bias',d,"metaplot.pdf",sep="_"),plot,path="plots/")
   }
-  
+
   for(d in c('CHH')){
     df2 <- df1[df1$variable==d,]
     plot <- ggplot(df2, aes(x=window,y=value,group=sample_bias,color=bias)) +
@@ -179,8 +179,8 @@ for(a in c("R500","TO1000")){
       geom_vline(xintercept=20,linetype="longdash",color="grey55") +
       geom_vline(xintercept=40,linetype="longdash",color="grey55") +
       scale_x_continuous(labels=c("-2000","TSS'","TTS'","+2000"),breaks=c(1, 20, 40, 60))
-    
-    ggsave(paste(a,'bias',d,"_metaplot.pdf",sep="_"),plot,path="plots/")
+
+    ggsave(paste(a,'bias',d,"metaplot.pdf",sep="_"),plot,path="plots/")
   }
 }
 
@@ -190,7 +190,7 @@ setwd("../total_methylation")
 for(x in c('combined','R500','TO1000')){
   df1 <- matrix(nrow=0,ncol=0)
   for(i in samples$Sample){
-    input=paste(x,paste(i,x,"weighted_methylation.txt",sep="_"),sep="/")
+    input=paste(x,paste(i,x,"weighted_methylation.txt.gz",sep="_"),sep="/")
     df2 <- t(read.table(input,header=T,sep="\t")[6])
     colnames(df2) <- c('CG','CHG','CHH')
     df2 <- melt(df2)
@@ -244,7 +244,7 @@ for(j in line <- unique(samples$Line)){
   for(x in c('combined','R500','TO1000')){
     df1 <- matrix(nrow=0,ncol=0)
     for(i in c(as.vector(samples[samples$Line==j,]$Sample),controls)){
-      input=paste(x,paste(i,x,"weighted_methylation.txt",sep="_"),sep="/")
+      input=paste(x,paste(i,x,"weighted_methylation.txt.gz",sep="_"),sep="/")
       df2 <- t(read.table(input,header=T,sep="\t")[6])
       colnames(df2) <- c('CG','CHG','CHH')
       df2 <- melt(df2)
@@ -281,14 +281,14 @@ for(j in line <- unique(samples$Line)){
 setwd("../DMRs")
 DMRs=c('CNN','CGN','CHG','CHH')
 for(i in DMRs){
-  input=paste(i,"_filtered_rms_results_collapsed.tsv",sep="")
+  input=paste(i,"_filtered_rms_results_collapsed.tsv.gz",sep="")
   df1 <- read.table(input,header=T,sep="\t")
   df2 <- as.matrix(log2(df1[7:length(df1)]*100+0.000001))
   df2 <- na.omit(df2)
   colnames(df2) <- gsub("methylation_level_","",colnames(df1[,7:length(df1)]))
   df2 <- df2[,order(c(1,7,13,2,8,14,3,9,15,4,10,16,5,11,17,6,12,18))]
   #Heatmap(df2,cluster_columns=F,heatmap_legend_param=list(title="Log2(%mCHH)"))
-  
+
   df3 <- df1[7:length(df1)]
   colnames(df3) <- gsub("methylation_level_","",colnames(df1[,7:length(df1)]))
   df3 <- df3[,order(c(1,7,13,2,8,14,3,9,15,4,10,16,5,11,17,6,12,18))]
@@ -298,8 +298,8 @@ for(i in DMRs){
   for(y in 1:18){x <- c(x,rep(y,nrow(df3)))}
   df4$order <- x
   rm(x)
-  
-  plot <- ggplot(df4, aes(x=variable,y=value,fill=generation)) + 
+
+  plot <- ggplot(df4, aes(x=variable,y=value,fill=generation)) +
     geom_boxplot(notch=T) +
     theme(panel.background=element_blank(),panel.grid=element_blank(),axis.text.y=element_text(color="black"),
           axis.text.x=element_text(color="black",angle=90,hjust=0,vjust=0),axis.ticks=element_line(color="black"),
@@ -307,10 +307,10 @@ for(i in DMRs){
     xlab("Sample") +
     ylab("Methylation level") +
     scale_y_continuous(labels=percent,expand=c(0,0))
-  
-  ggsave(paste(i,"by_line_boxplot.pdf",sep="_"),plot,path="plots/") 
-  
-  plot <- ggplot(df4, aes(reorder(x=variable,order),y=value,fill=generation)) + 
+
+  ggsave(paste(i,"by_line_boxplot.pdf",sep="_"),plot,path="plots/")
+
+  plot <- ggplot(df4, aes(reorder(x=variable,order),y=value,fill=generation)) +
     geom_boxplot(notch=T) +
     theme(panel.background=element_blank(),panel.grid=element_blank(),axis.text.y=element_text(color="black"),
           axis.text.x=element_text(color="black",angle=90,hjust=0,vjust=0),axis.ticks=element_line(color="black"),
@@ -318,7 +318,7 @@ for(i in DMRs){
     xlab("Sample") +
     ylab("Methylation level") +
     scale_y_continuous(labels=percent,expand=c(0,0))
-  
+
   ggsave(paste(i,"by_generation_boxplot.pdf",sep="_"),plot,path="plots/")
 }
 
