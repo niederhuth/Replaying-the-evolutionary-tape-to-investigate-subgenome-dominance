@@ -432,14 +432,15 @@ def feature_methylation(allc,annotations,genome_file,output=(),mc_type=['CG','CH
 
 #filter DMR output from methylpy based on minimum cutoffs
 def filter_dmr(dmr_file,output=(),min_dms=5,min_mC_diff=0.1):
-    a = pd.read_table(dmr_file)
-    list = []
-    for b in a.itertuples():
-        if b[4] >= min_dms:
-            if max(b[7:]) - min(b[7:]) >= min_mC_diff:
-                list.append(b[0])
-    a = a.ix[list]
-    if output:
-        a.to_csv(output, sep='\t', index=False)
-    else:
-        return a
+	a = pd.read_csv(dmr_file,sep='\t')
+	list = []
+	for b in a.itertuples():
+		if b[4] >= min_dms:
+			if max(b[7:]) - min(b[7:]) >= min_mC_diff:
+				list.append(b[0])
+	a = a.ix[list]
+	if output:
+		a.to_csv(output, sep='\t', index=False)
+	else:
+		return a
+
