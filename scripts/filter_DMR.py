@@ -10,7 +10,7 @@ import functions
 #define variables
 dmr_file=sys.argv[1]+"_rms_results_collapsed.tsv"
 output=sys.argv[1]+"_filtered_rms_results_collapsed.tsv"
-min_dms=5
+min_dms=4
 min_mC_diff=0.2
 
 #filter DMRs
