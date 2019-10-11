@@ -18,7 +18,7 @@ To reproduce the analysis, follow these steps:
 
 ```
 git clone https://github.com/niederhuth/Replaying-the-evolutionary-tape-to-investigate-subgenome-dominance  
-cd Bnapus-polyploidy  
+cd Replaying-the-evolutionary-tape-to-investigate-subgenome-dominance   
 ```
 
 **2)** Create the conda environment
@@ -65,13 +65,13 @@ or submit as a job
 **8)** When methylpy is finished, for each sample, you can run the various scripts in the "analyses_sh" directory (see note #2)
 
 ```
-cd <sample_directory>  
-bash ../../scripts/analyses_sh/<script_name>  
+cd **<sample_directory>**  
+bash ../../scripts/analyses_sh/**<script_name>**  
 ```
 
 or submit as a job
 
-These will create a series of outputs for each analysis in <sample_name>/combined/results
+These will create a series of outputs for each analysis in __**<sample_name>**/combined/results__
 
 These should match data found in the figures_tables directory
 
@@ -84,9 +84,10 @@ Rscript ../scripts/methylation_analysis.R
 
 **NOTE #2:** These scripts were written for use on the MSU HPCC. To run them on your computer or a different environment, you will need to change the header of each shell script (python and R scripts do not require changing) to something appropriate for your system. In each shell script, you will also need to either modify or delete these lines to a path appropriate for your system:
 ```
-export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH" 
-export LD_LIBRARY_PATH=""$HOME/miniconda3/envs/Bnapus-polyploidy/lib:$LD_LIBRARY_PATH"
+export PATH="**$HOME/miniconda3**/envs/Bnapus-polyploidy/bin:$PATH" 
+export LD_LIBRARY_PATH="**$HOME/miniconda3**/envs/Bnapus-polyploidy/lib:$LD_LIBRARY_PATH"
 ```
+Specifically modify the parts in the paths in bold.
 
 You also may need to delete this line
 
