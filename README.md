@@ -16,8 +16,8 @@ To reproduce the analysis, follow these steps:
 
 1) Clone this git repository
 
-git clone https://github.com/niederhuth/The-molecular-basis-of-kale-domestication-Comparative-transcriptomics
-cd Bnapus-polyploidy
+git clone https://github.com/niederhuth/Replaying-the-evolutionary-tape-to-investigate-subgenome-dominance  
+cd Bnapus-polyploidy  
 
 2) Create the conda environment
 
@@ -25,12 +25,12 @@ conda env create -f Bnapus-polyploidy.yml
 
 3) You will now need to create a symbolic link within this environment for methylpy to work. 
 
-cd /env/Bnapus-polyploidy/lib
-ln -s libgsl.so.23.0.0 libgsl.so.0
+cd /env/Bnapus-polyploidy/lib  
+ln -s libgsl.so.23.0.0 libgsl.so.0  
 
 4) Return to the cloned git repository
 
-cd ~/Bnapus-polyploidy
+cd ~/Replaying-the-evolutionary-tape-to-investigate-subgenome-dominance  
 
 5) Create a data folder and cd to it
 
@@ -43,14 +43,14 @@ bash ../scripts/setup.sh
 
 7) For each sample, run methylpy
 
-cd <sample_directory>
+cd <sample_directory>  
 bash ../../scripts/run_methylpy.sh
 
 or submit as a job
 
 8) When methylpy is finished, for each sample, you can run the various scripts in the "analyses_sh" directory (see note #2)
 
-cd <sample_directory>
+cd <sample_directory>  
 bash ../../scripts/analyses_sh/<script_name>
 
 or submit as a job
