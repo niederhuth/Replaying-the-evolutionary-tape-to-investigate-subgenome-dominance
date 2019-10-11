@@ -8,17 +8,17 @@
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
 
 #Set tmp directories
 export TMPDIR=$PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
 
 export TMP=$PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
 
 export TEMP=$PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
 
 
 #variables
@@ -27,5 +27,5 @@ sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 #get total weighted mC
 echo "Get gene exon methylation data for $sample"
 cd combined
-python ../../../scripts/all_genes_exon_methylation.py $sample
+python ../../../scripts/analyses_py/all_genes_exon_methylation.py $sample
 

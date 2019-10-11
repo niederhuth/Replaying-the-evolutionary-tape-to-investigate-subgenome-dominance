@@ -1,14 +1,14 @@
 #!/bin/bash --login
-#SBATCH --time=48:00:00
+#SBATCH --time=12:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=120GB
-#SBATCH --job-name 100kb_windows
+#SBATCH --mem=100GB
+#SBATCH --job-name TO1000_non-syntelogs_metaplot
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
 
 #Set tmp directories
 export TMPDIR=$PBS_O_WORKDIR
@@ -19,7 +19,7 @@ export TEMP=$PBS_O_WORKDIR
 sample=$(pwd | sed s/.*data\\/// | sed s/\\/.*//)
 
 #get total weighted mC
-echo "Get 100kb windows data for $sample"
+echo "Get gene metaplot data for $sample"
 cd combined
-python ../../../scripts/100kb_windows.py $sample
+python ../../../scripts/analyses_py/TO1000_non-syntelogs_metaplot.py $sample
 

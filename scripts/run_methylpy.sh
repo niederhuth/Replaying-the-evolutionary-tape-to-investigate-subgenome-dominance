@@ -1,15 +1,15 @@
 #!/bin/bash --login
-#SBATCH --time=72:00:00
+#SBATCH --time=98:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=10
-#SBATCH --mem=60GB
+#SBATCH --cpus-per-task=20
+#SBATCH --mem=120GB
 #SBATCH --job-name combined_methylpy
 #SBATCH --output=job_reports/%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
-export LD_LIBRARY_PATH="$HOME/minicond3/envs/mC/lib:$LD_LIBRARY_PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
+export LD_LIBRARY_PATH="$HOME/minicond3/envs/Bnapus-polyploidy/lib:$LD_LIBRARY_PATH"
 
 mkdir combined
 
@@ -25,7 +25,7 @@ adaptor1="AGATCGGAAGAGCACACGTCTGAAC"
 adaptor2="AGATCGGAAGAGCGTCGTGTAGGGA"
 aligner="bowtie2"
 aligner_options="--very-sensitive -X 1000"
-picard="/mnt/home/niederhu/miniconda3/envs/mC/share/picard-2.20.2-0"
+picard="$HOME/miniconda3/envs/Bnapus-polyploidy/share/picard-2.20.2-0"
 
 #Unzip fastq files
 echo "Decompressing fastq files"
@@ -87,14 +87,12 @@ methylpy paired-end-pipeline \
 	--min-base-quality 1 \
 	--keep-temp-files True
 
-#rm *mpileup_output.tsv *_reads_no_clonal*.bam* *_libA.metric
-
 #Compress fastq files
-#echo "Compressing fastqs"
-#cd ../fastq
-#for i in *fastq
-#do
-#	gzip $i
-#done
+echo "Compressing fastqs"
+cd ../fastq
+for i in *fastq
+do
+	gzip $i
+done
 
 echo "Done"

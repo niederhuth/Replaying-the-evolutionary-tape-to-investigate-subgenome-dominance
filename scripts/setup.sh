@@ -8,7 +8,7 @@
 #SBATCH --output=%x-%j.SLURMout
 
 cd $PBS_O_WORKDIR
-export PATH="$HOME/miniconda3/envs/mC/bin:$PATH"
+export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
 
 i=$(pwd | sed s/^.*\\///)
 
