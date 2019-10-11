@@ -9,7 +9,7 @@
 
 cd $PBS_O_WORKDIR
 export PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/bin:$PATH"
-export LD_LIBRARY_PATH="$HOME/minicond3/envs/Bnapus-polyploidy/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="$HOME/miniconda3/envs/Bnapus-polyploidy/lib:$LD_LIBRARY_PATH"
 
 mkdir combined
 
