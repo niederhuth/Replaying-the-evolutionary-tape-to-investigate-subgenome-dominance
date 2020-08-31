@@ -24,7 +24,7 @@ cd Replaying-the-evolutionary-tape-to-investigate-subgenome-dominance
 **2)** Create the conda environment
 
 ```
-conda env create -f Bnapus-polyploidy.yml
+conda env create -f scripts/Bnapus-polyploidy.yml
 ```
 
 **3)** You will now need to create a symbolic link within this environment for methylpy to work. 
