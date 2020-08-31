@@ -30,7 +30,7 @@ conda env create -f scripts/Bnapus-polyploidy.yml
 **3)** You will now need to create a symbolic link within this environment for methylpy to work. 
 
 ```
-cd /env/Bnapus-polyploidy/lib  
+cd miniconda3/env/Bnapus-polyploidy/lib  
 ln -s libgsl.so.23.0.0 libgsl.so.0  
 ```
 
