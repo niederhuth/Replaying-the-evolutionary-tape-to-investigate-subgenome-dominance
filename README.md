@@ -1,5 +1,5 @@
 ---
-Title: "Replaying the evolutionary tape to investigate subgenome dominance in allopolyploid _Brassica napus_"
+Title: "Replaying the evolutionary tape to investigate subgenome dominance in allopolyploid Brassica napus"
 Authors: "Kevin A. Bird, Chad E. Niederhuth, Shujun Ou, Malia Gehan, J. Chris Pires, Zhiyong Xiong, Robert VanBuren Patrick P. Edger"
 Raw data: "SRA Accession: PRJNA577908"
 ---
