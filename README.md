@@ -82,6 +82,14 @@ cd <sample_directory>
 bash ../../scripts/sh/setup.sh
 ```
 
+For the 'mock' sample you will need to combine the sequencing data from the TO1000 & IMB218 samples and add these to the fastq directory. The intention here is to imitate what would happen if you simply "combined" the two methylomes of these species. Since the TO1000 had a lot more reads than IMB218, I recommend downsampling to an
+equivalent number of reads. The overall impact on the metaplots is pretty minimal though To do this:
+
+```
+cd mock
+bash ../../scripts/sh/subsample.sh
+```
+
 **8)** For each sample, run methylpy
 
 ```
