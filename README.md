@@ -40,20 +40,49 @@ ln -s libgsl.so.23.0.0 libgsl.so.0
 cd ~/Replaying-the-evolutionary-tape-to-investigate-subgenome-dominance  
 ```
 
-**5)** Create a data folder and cd to it
+**5)** Create data and sample folders
 
 ```
 mkdir data
 cd data
+for i in $(sed '1d' ../misc/samples.csv| cut -d ',' -f1)
+do
+	mkdir $i $i/job_reports
+done
 ```
 
-**6)** Run the setup.sh script (see note #2)
+**7)** Setup reference genome for mapping
 
 ```
-bash ../scripts/sh/setup.sh
+mv ../ref ./
+cd ref
+mkdir combined
+zcat R500/*.fa.gz TO1000/*.fa.gz 37_Mitochondria.fa.gz 37_Plastid.fa.gz ../../misc/ChrL.fa.gz > tmp
+python ../../scripts/py/fix_fasta.py -i tmp -o combined/combined.fa
+rm tmp
+cd combined
+bash ../../../scripts/sh/index.sh
+cd ../annotations
+for i in *
+do
+	gunzip $i
+done
+cd bias
+for i in *
+do
+	gunzip $i
+done
+cd ../../../
 ```
 
-**7)** For each sample, run methylpy
+**7)** Run the setup.sh script (see note #2)
+
+```
+cd <sample_directory>
+bash ../../scripts/sh/setup.sh
+```
+
+**8)** For each sample, run methylpy
 
 ```
 cd <sample_directory>  
@@ -62,7 +91,7 @@ bash ../../scripts/sh/run_methylpy.sh
 
 or submit as a job
 
-**8)** When methylpy is finished, for each sample, you can run the various scripts in the "sh" directory (see note #2)
+**9)** When methylpy is finished, for each sample, you can run the various scripts in the "sh" directory (see note #2)
 
 ```
 cd **<sample_directory>**  
@@ -75,7 +104,7 @@ These will create a series of outputs for each analysis in __**<sample_name>**/c
 
 These should match data found in the figures_tables directory
 
-**9)** You can run the methylation_analysis.R in the figures_tables directory to output plots and other analyzed results
+**10)** You can run the methylation_analysis.R in the figures_tables directory to output plots and other analyzed results
 
 ```
 cd figures_tables  
