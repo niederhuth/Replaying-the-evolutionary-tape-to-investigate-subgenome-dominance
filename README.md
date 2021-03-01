@@ -5,7 +5,7 @@ Raw data: "SRA Accession: PRJNA577908"
 ---
 This repository is for DNA methylation scripts and data for the paper: https://nph.onlinelibrary.wiley.com/doi/full/10.1111/nph.17137
 
-Please cite this paper if you use any of the resources here.  
+Please cite this paper if you use any of the resources here. 
 
 All analyses performed on the Michigan State University High Performance Computing Cluster (HPCC)
 
@@ -97,4 +97,4 @@ You may also need to delete this line, which is meant for submitted jobs on the 
 cd $PBS_O_WORKDIR
 ```
 
-
+**NOTE #3:** The file "scripts/py/functions.py" contains a number of various python functions that I have written that can be used to analyze data from methylpy. 
